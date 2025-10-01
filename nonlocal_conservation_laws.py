@@ -72,18 +72,20 @@ class Nonlocal_Conservation_laws(Local_Conservation_Laws):
             print(100 * i / self.N)
 
             # Create index arrays for right and left fluxes
-            id_R = np.arange(1, self.K - 1)[:, None] + [0, 1]  # shape (K-2, 2)
-            id_L = np.arange(1, self.K - 1)[:, None] + [0, -1]      # shape (K-2, 2)
+            idR = np.arange(1, self.K - 1)[:, None] + [0, 1]  # shape (K-2, 2)
+            idL = np.arange(1, self.K - 1)[:, None] + [0, -1]      # shape (K-2, 2)
 
-            U0_R = U0[id_R]  # shape (K-2, 2)
-            Vj_R = Vj[id_R]  # shape (K-2, 2)
+            U0R = U0[idR]  # shape (K-2, 2)
+            VjR = Vj[idR]  # shape (K-2, 2)
 
-            U0_L = U0[id_L]  # shape (K-2, 2)
-            Vj_L = Vj[id_L]  
+            U0L = U0[idL]  # shape (K-2, 2)
+            VjL = Vj[idL]  
 
             # Calculate the fluxes F_R and F_L for the whole array
-            F_R = (U0_R[:, 0] * Vj_R[:, 0] + U0_R[:, 1] * Vj_R[:, 1]) / 2 + self.alpha / 2 * (U0_R[:, 0] - U0_R[:, 1])
-            F_L = (U0_L[:, 0] * Vj_L[:, 0] + U0_L[:, 1] * Vj_L[:, 1]) / 2 + self.alpha / 2 * (U0_L[:, 1] - U0_L[:, 0])
+            F_R = (U0R[:, 0] * VjR[:, 0] + U0R[:, 1] * VjR[:, 1]) / 2  \
+            + self.alpha / 2 * (U0R[:, 0] - U0R[:, 1])  #numerical flux on the right interface
+            F_L = (U0L[:, 0] * VjL[:, 0] + U0L[:, 1] * VjL[:, 1]) / 2  \
+            + self.alpha / 2 * (U0L[:, 1] - U0L[:, 0]) #numerical flux on the left interface
 
             # Vectorized update of U1
             U1[1:self.K - 1] = U0[1:self.K - 1] - dt / h * (F_R - F_L)
@@ -122,11 +124,12 @@ if __name__ == "__main__":
         # Plotting the result at t = 1
     final_time = 1
     plt.plot(bx, plot_data_local[-1], 'r--', label=f'local at t ={final_time}')
-    plt.plot(bx, plot_data_nonlocal[-1], label=f'nonlocal at t ={final_time}')
-    plt.plot(bx, plot_data_local_F[-1], label=f'nonlocal_F at t ={final_time}')
+    plt.plot(bx, plot_data_nonlocal[-1],'b' ,label=f'nonlocal at t ={final_time}')
+    plt.plot(bx, plot_data_local_F[-1],'green', label=f'nonlocal_F at t ={final_time}')
     plt.xlabel('x')
     plt.ylabel('Density')
     plt.title('Lax-Friedrichs Method')
     plt.legend()
     plt.show()
+   
  

@@ -61,9 +61,10 @@ class Local_Conservation_Laws:
     
     def f(self,U):
         "local flux of the local conservation laws"
-        return U**2/2 # Burgers’ equation
+        return U*(1-U)
+        #return U**2/2 # Burgers’ equation
 
-    def local_solver(self, U0, bt, boundary_condition):
+    def local_solver(self, U0, boundary_condition):
         """Solving the local conservation laws at every time step:
         Input: array vector with the solution at t = 0
         Returns: Plot_data with the solution vector at each time step t"""
@@ -84,30 +85,46 @@ class Local_Conservation_Laws:
 
             elif boundary_condition == "artificial":
                 pass
-
-            for j in range(1, self.K - 1):  # Avoid index out of range
-                F_R = (self.f(U0[j]) + self.f(U0[j+1]))/2 - h / (2 * dt) * (U0[j+1] -U0[j]) 
-                F_L = (self.f(U0[j-1]) + self.f(U0[j]))/2 - h / (2 * dt) * (U0[j] -U0[j-1]) 
-                U1[j] = U0[j] - dt / h * (F_R - F_L) # Correct Lax-Friedrichs formula
             
+            idR = np.arange(1, self.K - 1)[:, None] + [0, 1]  # shape (K-2, 2)
+            idL = np.arange(1, self.K - 1)[:, None] + [0, -1]
+            U0R = U0[idR] 
+            U0L = U0[idL]
+            # We use the flux function directly here to avoid error on compuations
+            FR = (U0R[:,0]*(1-U0R[:,0])) + U0R[:,1]*(1-U0R[:,1])/2 \
+            - h / (2 * dt) * ( U0R[:,1] - U0R[:,0]) #numerical flux on the right interface
+            
+            FL = (U0L[:,0]*(1-U0L[:,0])) + U0L[:,1]*(1-U0L[:,1])/2 \
+            - h / (2 * dt) * ( U0L[:,0] - U0L[:,1]) #numerical flux on the right interface
+            
+            U1[1: self.K - 1] = U0[1:self.K - 1] - dt / h * (FR - FL)
+
             plot_data.append(U1.copy())  # Store the result at each time step
-            U0 = U1.copy()
+            U0 = U1.copy()  
 
         return plot_data
+
+if __name__ == "__main__":
+
       
-u0 = lambda x: 1 if x < 0 else 0  # Initial condition
+    #u0 = lambda x: 1 if x < 0 else 0 # Initial condition
+    #u0 = lambda x: 0.1 if x < 0.5 else 0.6
+    u0 = lambda x: 0.4 + 0.4*np.exp(-100*(x-0.5)**2)
+    a = Local_Conservation_Laws(1, 0, 1, 500, 500)
+    bx, bt = a.create_mesh()  
+    U0 = a.initial_value(u0, bx)
+    plot_data = a.local_solver(U0, "dirichlet")  
+    #print(plot_data)
+    #print(bt)
 
-a = Local_Conservation_Laws(1, -1, 1, 500, 500)
-bx, bt = a.create_mesh()  
-U0 = a.initial_value(u0, bx)
-plot_data = a.local_solver(U0, bt, "dirichlet")  
-#print(bt)
+    # Plotting the result at t = 1
+    final_time = 1
+    plt.plot(bx, plot_data[-1], label=f'Time={final_time}')  # Plot the final time state
+    plt.xlabel('x')
+    plt.ylabel('Density')
+    plt.title('Lax-Friedrichs Method')
+    plt.legend()
+    plt.show()
 
-# Plotting the result at t = 1
-final_time = 1
-plt.plot(bx, plot_data[-1], label=f'Time={final_time}')  # Plot the final time state
-plt.xlabel('x')
-plt.ylabel('Density')
-plt.title('Lax-Friedrichs Method')
-plt.legend()
-plt.show()
+M = np.array([[1,2],[2,1]])
+#print(M@M)
