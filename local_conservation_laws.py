@@ -71,8 +71,9 @@ class Local_Conservation_Laws:
         
         h = self.h
         dt = self.dt
-        U1 = np.zeros(len(U0))  # Vector solution at next time step
-        plot_data = [U0.copy()]  # Store initial data and the updated data
+        U1 = np.zeros(len(U0)) 
+        plot_data = [U0.copy()]
+      
         
         for i in range(1, self.N + 1):  
 
@@ -90,12 +91,10 @@ class Local_Conservation_Laws:
             idL = np.arange(1, self.K - 1)[:, None] + [0, -1]
             U0R = U0[idR] 
             U0L = U0[idL]
-            # We use the flux function directly here to avoid error on compuations
-            FR = (U0R[:,0]*(1-U0R[:,0])) + U0R[:,1]*(1-U0R[:,1])/2 \
-            - h / (2 * dt) * ( U0R[:,1] - U0R[:,0]) #numerical flux on the right interface
+            # Lax-Friedrichs-type scheme
             
-            FL = (U0L[:,0]*(1-U0L[:,0])) + U0L[:,1]*(1-U0L[:,1])/2 \
-            - h / (2 * dt) * ( U0L[:,0] - U0L[:,1]) #numerical flux on the right interface
+            FR = (self.f(U0R[:,0]) + self.f(U0R[:,1]))/2 - h / (2 * dt) * ( U0R[:,1] - U0R[:,0])
+            FL = (self.f(U0L[:,0]) + self.f(U0L[:,1]))/2 - h / (2 * dt) * ( U0L[:,0] - U0L[:,1])
             
             U1[1: self.K - 1] = U0[1:self.K - 1] - dt / h * (FR - FL)
 
@@ -104,27 +103,66 @@ class Local_Conservation_Laws:
 
         return plot_data
 
+    
+    def entropy_solution(self, x ,t):
+        
+       return 0.1 if x < 0.8*t else 0.6
+    
+    def l1_error(self, numerical_solution, bx, t, solution_at_t):
+        self.t = t
+        h = self.h
+        entropy_solution = np.zeros(self.K)
+        for i in range(self.K):
+            entropy_solution[i] = self.entropy_solution(bx[i],t)
+        en = entropy_solution  - numerical_solution[solution_at_t]
+        return (h*np.sum(abs(en))), entropy_solution
+
+u0 = lambda x: 0.1 if x < 0.5 else 0.6
+
+#u0 = lambda x: 0.4 + 0.4*np.exp(-100*(x-0.5)**2)
+
+
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
 
+
+
       
-    #u0 = lambda x: 1 if x < 0 else 0 # Initial condition
-    #u0 = lambda x: 0.1 if x < 0.5 else 0.6
-    u0 = lambda x: 0.4 + 0.4*np.exp(-100*(x-0.5)**2)
-    a = Local_Conservation_Laws(1, 0, 1, 500, 500)
+    #u0 = lambda x: 0 if x < 0 else 1 # Initial condition
+    u0 = lambda x: 0.1 if x < 0.5 else 0.6
+    #u0 = lambda x: 0.4 + 0.4*np.exp(-100*(x-0.5)**2)
+    K = 500
+    N = 500
+    x_L= 0 
+    x_R= 1
+    T = 1 
+    t= 1
+    solution_at_t = -1
+    a = Local_Conservation_Laws(T, x_L, x_R, K, N)
     bx, bt = a.create_mesh()  
-    U0 = a.initial_value(u0, bx)
+    U0 = a.initial_value(u0, bx) 
     plot_data = a.local_solver(U0, "dirichlet")  
-    #print(plot_data)
-    #print(bt)
+
+    l2, entropy_solution = a.l2_error(plot_data,bx, t, solution_at_t)
+    print(f'l2 error is {l2}')
+    print("----")
+
+   
 
     # Plotting the result at t = 1
     final_time = 1
-    plt.plot(bx, plot_data[-1], label=f'Time={final_time}')  # Plot the final time state
+    plt.plot(bx, plot_data[-1], label=f'numerical solution at time={final_time}')  # Plot the final time state
+    plt.plot(bx, entropy_solution, label=f'entropy solution at time={final_time}')
     plt.xlabel('x')
     plt.ylabel('Density')
     plt.title('Lax-Friedrichs Method')
     plt.legend()
-    plt.show()
-
-M = np.array([[1,2],[2,1]])
-#print(M@M)
+    #plt.show()
+   
