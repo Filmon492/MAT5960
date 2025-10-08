@@ -105,21 +105,26 @@ class Local_Conservation_Laws:
 
     
     def entropy_solution(self, x ,t):
+         
+        if x <= -0.2*t:
+            return 0.6
+        if -0.2*t < x <= 0.8*t:
+            return (t - x)/(2*t)
+        if x > 0.8*t:
+            return 0.1 
         
-       return 0.1 if x < 0.8*t else 0.6
+        #return 0.1 if x < 0.8*t else 0.6
     
-    def l1_error(self, numerical_solution, bx, t, solution_at_t):
+    def l1_error(self, bx, t,numerical_solution):
         self.t = t
         h = self.h
         entropy_solution = np.zeros(self.K)
+        en = np.zeros(self.K)
         for i in range(self.K):
             entropy_solution[i] = self.entropy_solution(bx[i],t)
-        en = entropy_solution  - numerical_solution[solution_at_t]
-        return (h*np.sum(abs(en))), entropy_solution
-
-u0 = lambda x: 0.1 if x < 0.5 else 0.6
-
-#u0 = lambda x: 0.4 + 0.4*np.exp(-100*(x-0.5)**2)
+            en[i] = entropy_solution[i]  - numerical_solution[i]
+        return (h*np.sum(abs(en))), entropy_solution 
+    
 
 
 
@@ -130,39 +135,7 @@ u0 = lambda x: 0.1 if x < 0.5 else 0.6
 
 
 
-if __name__ == "__main__":
 
 
 
-      
-    #u0 = lambda x: 0 if x < 0 else 1 # Initial condition
-    u0 = lambda x: 0.1 if x < 0.5 else 0.6
-    #u0 = lambda x: 0.4 + 0.4*np.exp(-100*(x-0.5)**2)
-    K = 500
-    N = 500
-    x_L= 0 
-    x_R= 1
-    T = 1 
-    t= 1
-    solution_at_t = -1
-    a = Local_Conservation_Laws(T, x_L, x_R, K, N)
-    bx, bt = a.create_mesh()  
-    U0 = a.initial_value(u0, bx) 
-    plot_data = a.local_solver(U0, "dirichlet")  
-
-    l2, entropy_solution = a.l2_error(plot_data,bx, t, solution_at_t)
-    print(f'l2 error is {l2}')
-    print("----")
-
-   
-
-    # Plotting the result at t = 1
-    final_time = 1
-    plt.plot(bx, plot_data[-1], label=f'numerical solution at time={final_time}')  # Plot the final time state
-    plt.plot(bx, entropy_solution, label=f'entropy solution at time={final_time}')
-    plt.xlabel('x')
-    plt.ylabel('Density')
-    plt.title('Lax-Friedrichs Method')
-    plt.legend()
-    #plt.show()
    
