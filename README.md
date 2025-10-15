@@ -7,9 +7,6 @@ Filmon Misgane
 ## Project Summary
 This ongoing project simulates traffic flow using numerical methods inspired by computational fluid dynamics (CFD). The programing languge is Python and the implementation is object-oriented and uses vectorized code to ensure efficiency and scalability. 
 
-## Description of the files
-There are two main files so far. The local_conservation_laws.py conatins the implementation of the local model while nonlocal_conservation_laws.py contains the implementation of nonlocal model. 
-
 ## Upcoming works
 The scheme I use here is a Lax-Friedrics-type scheme. Currently, I am focusing on implementation of the convergence of the scheme to the entropy solution. 
 
