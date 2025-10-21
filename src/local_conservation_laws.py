@@ -113,7 +113,7 @@ class Local_Conservation_Laws:
         if x > 0.8*t:
             return 0.1 
         
-        #return 0.1 if x < 0.8*t else 0.6
+        
     
     def l1_error(self, bx, t,numerical_solution):
         self.t = t
