@@ -59,7 +59,7 @@ class Convergence_Rates(Nonlocal_Conservation_laws):
 
 
 # Initial conditions and parameters
-u0 = lambda x: 0.6 if x < 0 else 0.1  # Simple piecewise constant initial condition
+u0 = lambda x: 0.6 if x < 0 else 0.1  
 alpha = 2.0
 epsilon = 0.1
 K = 50
