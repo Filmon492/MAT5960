@@ -62,7 +62,7 @@ class Local_Conservation_Laws:
     def f(self,U):
         "local flux of the local conservation laws"
         return U*(1-U)
-        #return U**2/2 # Burgers’ equation
+        
 
     def local_solver(self, U0, boundary_condition):
         """Solving the local conservation laws at every time step:
