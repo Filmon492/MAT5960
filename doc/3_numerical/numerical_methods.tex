@@ -1,0 +1,15 @@
+\section{Numerical method}
+\begin{center}
+    {\bfseries 3.1 Finite volume scheme for general $f$}
+\end{center}
+When designing the Finite difference method, it consists of four steps:
+\begin{enumerate}
+    \item Discretizing the domain,
+    \item Fulfilling the equation at discrete points,
+    \item Replacing derivatives by finite differences,
+    \item Solve the discretized problem.
+\end{enumerate}
+
+If we take a look on step 3, it requires that solutions should be smooth. However, solutions of conservations laws
+may not be differentiable or even not continuous. For this and other reasons, we must adapt the steps above to design
+a reasonable numerical method.

@@ -1,0 +1,85 @@
+\section{Preliminaries}
+\subsection{Scalar local and nonlocal conservation laws}
+
+Scalar conservation laws are partial differential equations that can be written in the form
+\begin{equation}\label{eq:scalar_conservation}
+    \begin{split}
+        \partial u + \nabla \cdot f(u) & = 0        \\
+        u(x,0)                         & = u_{0}(x)
+    \end{split}
+\end{equation}
+where $\partial_{t} = \frac{\partial}{\partial_{t}}$ is time differentiation, $\nabla \cdot$
+is divergence operator, $ u = u(x,t)$ is the unknown and $f$ is a given flux function.
+
+If we now let $f(u) = u(1-u)$, then \cref{eq:scalar_conservation} can be used for modelling traffic. For detailed setup of this model, we refer to
+\cite{Ulrik2015}.
+However, this model is based only on local information. Usually, when a car driver decides his speed, it depends on the traffic information within a road segment
+of length $\epsilon > 0$ ahead of the cars's current location. For this to take into account we look for a better way to model
+the velocity, hence we need a nonlocal model which is on the following form
+\begin{equation}\label{eq:nonlocal_model}
+    \begin{split}
+        \partial u + \nabla \cdot (uV(u)) & = 0        \\
+        u(x,0)                            & = u_{0}(x)
+    \end{split}
+\end{equation}
+where now $V$ is a nonlocal operator, say,
+\begin{equation}
+    V(u)(x,t) = \int_{0}^{\epsilon} \omega_{\epsilon}(y) v(u(x+y,t)) \, dy
+\end{equation}
+for some
+nonlocal kernel $\omega_{\epsilon}: [0,\epsilon] \rightarrow \mathbb{R}$ satisfying $\omega_{\epsilon} \geq 0$ and $\int_{0}^{\epsilon} \omega_{\epsilon}(y)  \, dy = 1$.
+formally speaking, $V(u) \rightarrow v(u)$ as $\epsilon \rightarrow 0$, but whether the corresponding solutions
+$u_{\epsilon}$ of \eqref{eq:nonlocal_model} converge to a solution of \eqref{eq:scalar_conservation}, is the big question that has been studied.
+
+To sum this up, let us denote \eqref{eq:scalar_conservation} and \eqref{eq:nonlocal_model} as local and nonlocal model, respectively. Then we are aiming
+to approximate solution of the local model by solutions of the nonlocal model, where the solution $u(x,t)$ denote the density of cars which is
+number of cars per square meter.
+
+\subsection{Solutions to the Riemann problem}
+For numerical experiments we need entropy solutions for different initial data. Hence, we briefly mention the notion of weak solution
+and entropy solution.
+
+\begin{definition}[Weak solutions]
+    A function $u \in L^{\infty}(\mathbb{R} \times \mathbb{R_{+}})$ is a weak solution of \eqref{eq:scalar_conservation} with initial
+    data $u_{0} \in L^{\infty}(\mathbb{R})$ if the following identity holds for all test functions $\phi \in C^{1}(\mathbb{R} \times \mathbb{R_{+}})$
+    \begin{equation}
+        \int_{\mathbb{R_{+}}}^{} \int_{\mathbb{R}}^{} {
+            u \phi_{t} + f(u) \phi_{x} \,dx \, dt
+        }
+        + \int_{\mathbb{R}}^{} u_{0} \phi(x,0) \,dx = 0.
+    \end{equation}
+\end{definition}
+Since weak solutions are not unique, therefore some extra conditions have to be imposed in order to pick a weak solution
+that describes the physical flow correctly. One such condition is entropy condition.
+Detailed characteristics of entropy solution can be found on \cite{Ulrik2015_entropy}.
+
+Now we look at the explicit solutions for the Riemann problem.
+The Riemann problem is the initial value problem
+\begin{equation}
+    \begin{split}
+        \partial_{t} u + \nabla \cdot f(u) & = 0 \\
+        u(x,0)                             & =
+        \begin{cases}
+            u_{l} & \text{if } x < 0 \\
+            u_{r} & \text{if } x > 0
+        \end{cases}
+    \end{split}
+\end{equation}
+
+Solution of this equation is constructed as
+\begin{equation}
+    u(x,t)=
+    \begin{cases}
+        u_{l}                  & \text{for } x < h'(u_l)t            \\
+        (h')^{-1}(\frac{x}{t}) & \text{for } h'(u_l)t < x < h'(u_r)t \\
+        u_{r}                  & \text{for } x > h'(u_r)t
+    \end{cases}
+\end{equation}
+where $h(u)$ is defined by
+\begin{equation}
+    h(u) =
+    \begin{cases}
+        \sup\{ g(u) \mid g \leq f \text{ and } g \text{ is convex on } [u_l, u_r] \}  & \text{if } u_l < u_r, \\
+        \inf\{ g(u) \mid g \geq f \text{ and } g \text{ is concave on } [u_r, u_l] \} & \text{if } u_r < u_l.
+    \end{cases}
+\end{equation}

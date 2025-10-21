@@ -1,0 +1,61 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{minted}
+\usepackage{textcomp}
+\usepackage{mathtools}
+\usepackage{float}
+\usepackage{mathrsfs}
+\usepackage[backend=bibtex]{biblatex}
+\usepackage{tikz}
+\usepackage{url}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{sectsty}
+\usepackage{microtype}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\hypersetup{ % this is just my personal choice, feel free to change things
+    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black},
+}
+\usepackage[capitalise]{cleveref}
+
+%\titleformat{\section}[block]{\color{blue}\Large\bfseries\filcenter}{}{1em}{}
+%\titleformat{\subsection}[hang]{\bfseries}{}{1em}{}
+%\setcounter{secnumdepth}{0}
+\subsectionfont{\centering}
+
+\addbibresource{references.bib}
+
+\newtheorem{definition}{Definition}[section]
+
+\usetikzlibrary{automata,arrows,positioning,calc}
+\title{Numerical methods for nonlocal conservation laws}
+\author{Filmon Tesfamikael Misgane}
+\date{October 2025}
+
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section*{Preface}
+\include{1_introduction/introduction}
+
+\include{2_preliminaries/preliminary}
+
+\include{3_numerical/numerical_methods}
+
+\section{Numerical experiments}
+\section{Convergence of the numerical method to entropy solution}
+
+\printbibliography
+
+\end{document}
