@@ -67,17 +67,17 @@ N = 50
 x_L = -1
 x_R = 1
 T = 0.5
-m = 4
+m = 8
 
 
 b = Convergence_Rates(T, x_L, x_R, K, N, epsilon, alpha)
 r, E, h = b.convergence_rates(m, T, x_L, x_R, K, N, epsilon, alpha, u0)
 
-#print("Convergence Rates:", r)
+print("Convergence Rates:", r)
 plt.plot(h, E)
 plt.xlabel('Mesh Size (h)')
 plt.ylabel('l1 error ')
 plt.title('Convergence Analysis')
-plt.xscale('log')
-plt.yscale('log')
+#plt.xscale('log')
+#plt.yscale('log')
 plt.show()
