@@ -1,38 +1,40 @@
 \section{Preliminaries}
 \subsection{Scalar local and nonlocal conservation laws}
 
-Scalar conservation laws are partial differential equations that can be written in the form
-\begin{equation}\label{eq:scalar_conservation}
+Scalar conservation laws are partial differential equations that can be written on the form
+\begin{equation}\label{eq:local model}
     \begin{split}
-        \partial u + \nabla \cdot f(u) & = 0        \\
-        u(x,0)                         & = u_{0}(x)
+        \partial_{t} u + \nabla \cdot f(u) & = 0        \\
+        u(x,0)                             & = u_{0}(x)
     \end{split}
 \end{equation}
-where $\partial_{t} = \frac{\partial}{\partial_{t}}$ is time differentiation, $\nabla \cdot$
-is divergence operator, $ u = u(x,t)$ is the unknown and $f$ is a given flux function.
+where $\partial_{t} = \frac{\partial}{\partial_{t}}$ is temporal differentiation, $\nabla \cdot$
+is divergence operator, $ u = u(x,t)$ is the unknown function of $x$ and $t$ and $f$ is a given flux function.
 
-If we now let $f(u) = u(1-u)$, then \cref{eq:scalar_conservation} can be used for modelling traffic. For detailed setup of this model, we refer to
-\cite{Ulrik2015}.
-However, this model is based only on local information. Usually, when a car driver decides his speed, it depends on the traffic information within a road segment
-of length $\epsilon > 0$ ahead of the cars's current location. For this to take into account we look for a better way to model
-the velocity, hence we need a nonlocal model which is on the following form
+If we now let $f(u) = uv(u)$ where $v(u)= 1-u$, then \cref{eq:local model} can be used for modelling traffic flow. For a detailed setup of this model, we refer to
+\cite{Ulrik2015}. This model is however based only on local information. when a car driver usually decides his speed, it depends on the traffic information within a road segment
+of length $\epsilon > 0$ ahead of the car's current location. For managing that case we look for a better way to model
+the velocity, so we need a nonlocal model which is on the following form
 \begin{equation}\label{eq:nonlocal_model}
     \begin{split}
-        \partial u + \nabla \cdot (uV(u)) & = 0        \\
-        u(x,0)                            & = u_{0}(x)
+        \partial_{t} u + \nabla \cdot (uV(u)) & = 0        \\
+        u(x,0)                                & = u_{0}(x)
     \end{split}
 \end{equation}
 where now $V$ is a nonlocal operator, say,
-\begin{equation}
-    V(u)(x,t) = \int_{0}^{\epsilon} \omega_{\epsilon}(y) v(u(x+y,t)) \, dy
+\begin{equation} \label{eq: nonlocal operator}
+    \begin{split}
+        V(u)(x,t) = v(u*\omega_{\epsilon}) \\
+        = 1- \int_{0}^{\epsilon} \omega_{\epsilon}(y) u(x+y,t) \, dy
+    \end{split}
 \end{equation}
 for some
 nonlocal kernel $\omega_{\epsilon}: [0,\epsilon] \rightarrow \mathbb{R}$ satisfying $\omega_{\epsilon} \geq 0$ and $\int_{0}^{\epsilon} \omega_{\epsilon}(y)  \, dy = 1$.
-formally speaking, $V(u) \rightarrow v(u)$ as $\epsilon \rightarrow 0$, but whether the corresponding solutions
-$u_{\epsilon}$ of \eqref{eq:nonlocal_model} converge to a solution of \eqref{eq:scalar_conservation}, is the big question that has been studied.
+Formally speaking, $V(u) \rightarrow v(u)$ as $\epsilon \rightarrow 0$, but whether the corresponding solutions
+$u_{\epsilon}$ of \eqref{eq:nonlocal_model} converge to a solution of \eqref{eq:local model}, is the key question that has been studied in the literature (need a citation).
 
-To sum this up, let us denote \eqref{eq:scalar_conservation} and \eqref{eq:nonlocal_model} as local and nonlocal model, respectively. Then we are aiming
-to approximate solution of the local model by solutions of the nonlocal model, where the solution $u(x,t)$ denote the density of cars which is
+In conclusion, let us denote \eqref{eq:local model} and \eqref{eq:nonlocal_model} the local and nonlocal model, respectively. We are then aiming
+to approximate solutions of the local model by solutions of the nonlocal model, where the solution $u(x,t)$ represents the density of cars which is the
 number of cars per square meter.
 
 \subsection{Solutions to the Riemann problem}
@@ -40,7 +42,7 @@ For numerical experiments we need entropy solutions for different initial data. 
 and entropy solution.
 
 \begin{definition}[Weak solutions]
-    A function $u \in L^{\infty}(\mathbb{R} \times \mathbb{R_{+}})$ is a weak solution of \eqref{eq:scalar_conservation} with initial
+    A function $u \in L^{\infty}(\mathbb{R} \times \mathbb{R_{+}})$ is a weak solution of \eqref{eq:local model} with initial
     data $u_{0} \in L^{\infty}(\mathbb{R})$ if the following identity holds for all test functions $\phi \in C^{1}(\mathbb{R} \times \mathbb{R_{+}})$
     \begin{equation}
         \int_{\mathbb{R_{+}}}^{} \int_{\mathbb{R}}^{} {
@@ -49,11 +51,11 @@ and entropy solution.
         + \int_{\mathbb{R}}^{} u_{0} \phi(x,0) \,dx = 0.
     \end{equation}
 \end{definition}
-Since weak solutions are not unique, therefore some extra conditions have to be imposed in order to pick a weak solution
+Since weak solutions are not unique, some additional conditions have to be imposed in order to pick a weak solution
 that describes the physical flow correctly. One such condition is entropy condition.
-Detailed characteristics of entropy solution can be found on \cite{Ulrik2015_entropy}.
+Detailed characteristics of the entropy solution can be found in \cite{Ulrik2015_entropy}.
 
-Now we look at the explicit solutions for the Riemann problem.
+We now look at the explicit solutions for the Riemann problem.
 The Riemann problem is the initial value problem
 \begin{equation}
     \begin{split}
@@ -70,9 +72,9 @@ Solution of this equation is constructed as
 \begin{equation}
     u(x,t)=
     \begin{cases}
-        u_{l}                  & \text{for } x < h'(u_l)t            \\
-        (h')^{-1}(\frac{x}{t}) & \text{for } h'(u_l)t < x < h'(u_r)t \\
-        u_{r}                  & \text{for } x > h'(u_r)t
+        u_{l}                  & \text{for } x \leq h'(u_l)t               \\
+        (h')^{-1}(\frac{x}{t}) & \text{for } h'(u_l)t \leq x \leq h'(u_r)t \\
+        u_{r}                  & \text{for } x \geq h'(u_r)t
     \end{cases}
 \end{equation}
 where $h(u)$ is defined by

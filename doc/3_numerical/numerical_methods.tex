@@ -1,15 +1,115 @@
 \section{Numerical method}
-\begin{center}
-    {\bfseries 3.1 Finite volume scheme for general $f$}
-\end{center}
-When designing the Finite difference method, it consists of four steps:
+\subsection{Finite volume scheme for general \texorpdfstring{$f$}{f}}
+Designing the finite difference method consists of four steps:
 \begin{enumerate}
     \item Discretizing the domain,
-    \item Fulfilling the equation at discrete points,
+    \item Satisfying the equation at discrete points,
     \item Replacing derivatives by finite differences,
-    \item Solve the discretized problem.
+    \item Solving the discretized problem.
 \end{enumerate}
 
-If we take a look on step 3, it requires that solutions should be smooth. However, solutions of conservations laws
-may not be differentiable or even not continuous. For this and other reasons, we must adapt the steps above to design
-a reasonable numerical method.
+If we take a look at step 3, it requires that solutions have to be smooth sufficiently. However, solutions of conservations laws may not be differentiable or even continuous. For this and other reasons, we have to adapt the steps above to design
+a reasonable numerical method. That is a numerical method appropriate to our problem which is called a finite volume scheme.
+
+\subsection{Discretizing the domain and control volumes}
+For simplicity, we consider a uniform discretization of both the one dimensional spatial domain $[x_L, x_R]$ and temporal domain $[0, T]$.
+We split the spatial domain into $\mathcal{C}_{j}$ called control volumes, which are smaller and non-overlapping subdomains, such that
+\begin{equation}
+    \begin{split}
+        [x_L, x_R] & = \bigcup_{j=0}^{K} [x_L+j\Delta x, x_L+(j+1) \Delta x]     \\
+                   & = \bigcup_{j=0}^{K} [x_{j- \frac{1}{2}}, x_{j+\frac{1}{2}}] \\
+                   & = \bigcup_{j=0}^{K} \mathcal{C}_{j}
+    \end{split}
+\end{equation}
+where $\Delta x = \frac{x_R -x_L}{K+1}$.
+
+We denote each midpoint of each $\mathcal{C}_{j}$ by
+$x_j = x_L + (j + \frac{1}{2}) \Delta x$ for $j = 0,\cdots \cdots, K$.
+
+Setting $\Delta t = \frac{T}{N+1}$, we discretize the temporal domain $[0,T]$ as
+$ 0= t^{0} < t^{1} < \cdots < t^{N} < t^{N+1} = T$ where each $t^n = n  \Delta t $ for $n = 0,\cdots \cdots, N+1$.
+
+\subsection{Cell averages and a finite volume scheme}
+As solutions of conservations laws may be discontinuous, pointwise evaluation does not make sense. Instead, at each time level $t^n$, we take cell averages:
+\begin{equation}
+    \begin{split}
+        u(x_j, t^n) = u_{j}^{n} \approx \frac{1}{\Delta x}\int_{x_{j-\frac{1}{2}}}^{x_{j+\frac{1}{2}}} u(x,t^n) \,dx
+    \end{split}
+\end{equation}
+Assuming now the cell averages are known at some time level $t^n$, we find the cell averages at next time level $t^{n+1}$ as follows:\\
+Taking an integral of \eqref{eq:local model} over the domain $[x_{j- \frac{1}{2}}, x_{j+\frac{1}{2}}] \times [t^n, t^{n+1}] $
+\begin{align*}
+    \int_{t^n}^{t^{n+1}} \int_{x_{j-\frac{1}{2}}}^{x_{j+\frac{1}{2}}} {u_{t} \,dx \, dt}
+    +\int_{t^n}^{t^{n+1}} \int_{x_{j-\frac{1}{2}}}^{x_{j+\frac{1}{2}}} f(u)_{x} \,dx \, dt = 0
+\end{align*}
+
+And applying the fundamental theorem of calculus yields
+\begin{equation}\label{eq:fundamental theorem}
+    \begin{split}
+        \int_{x_{j-\frac{1}{2}}}^{x_{j+\frac{1}{2}}} u(x, t^{n+1}) \,dx
+        - \int_{x_{j-\frac{1}{2}}}^{x_{j+\frac{1}{2}}} u(x, t^{n}) \,dx \\
+        = - \int_{t^n}^{t^{n+1}} f(u(x_{j +\frac{1}{2}},t)) \,dt + \int_{t^n}^{t^{n+1}} f(u(x_{j-\frac{1}{2}},t)) \,dt
+    \end{split}
+\end{equation}
+Defining the numerical fluxes
+\begin{equation}\label{eq:numerical fluxes}
+    \begin{split}
+        {\bar{F}}_{j+ \frac{1}{2}} = \frac{1}{\Delta t} \int_{t^n}^{t^{n+1}} f(u(x_{j +\frac{1}{2}},t)) \,dt
+    \end{split}
+\end{equation}
+and dividing both sides of $(10)$ by $\Delta x$, we obtain
+\begin{equation} \label{eq:CFD with numerical fluxes}
+    \begin{split}
+        u_{j}^{n+1} = u_{j}^{n} - \frac{\Delta t}{\Delta x}( {\bar{F}}_{j+ \frac{1}{2}} -{\bar{F}}_{j- \frac{1}{2}})
+    \end{split}
+\end{equation}
+Note that the relation in \eqref{eq:CFD with numerical fluxes} is not explicit, since $\bar{F}$ requires a priori knowledge of the exact solution. By introducing an appropriate approximation of the numerical flux $\bar{F}$ by $F$, we obtain the finite volume scheme for a general flux $f$:
+\begin{equation}\label{eq: CFD of general f}
+    \begin{split}
+        u_{j}^{n+1} = u_{j}^{n} - \frac{\Delta t}{\Delta x} (F_{j+\frac{1}{2}} - F_{j-\frac{1}{2}})
+    \end{split}
+\end{equation}
+
+\subsection{Finite Volume Scheme for the Nonlocal Model}
+
+Let the flux be defined as $f = uV$, where $V$ is the nonlocal operator given in \eqref{eq: nonlocal operator}. There are several ways to specify the nonlocal numerical fluxes. In this work, we focus on a Lax-Friedrichs type scheme; see the approaches in \cite{blandin2016} and \cite{huang2024}.
+let us set
+\begin{equation}\label{eq: approximation of the convolution term}
+    V_{j}^{n} = 1 - \Delta x \sum_{k=0}^{m-1} \omega_k u_{j+k}^{n},
+\end{equation}
+Where $\{ \omega_k \}_{k= 0}^{m-1}$ is a set of numerical quadrature weights that are used to approximate the nonlocal kernel $\omega_{\epsilon}$ and $m= \lceil \frac{\epsilon}{\Delta x} \rceil$ is the number of cells involved in $V$. \\
+We now take the numerical fluxes in  \eqref{eq: CFD of general f} as following:
+\begin{equation}\label{eq: flux at left}
+    F_{j-\frac{1}{2}} = \frac{1}{2} u_{j-1}^n V_{j-1}^n +  \frac{1}{2} u_{j}^n V_{j}^n + \frac{\alpha}{2} (u_{j-1}^n - u_{j}^n)
+\end{equation}
+and
+\begin{equation}\label{eq: flux at right}
+    F_{j+\frac{1}{2}} = \frac{1}{2} u_{j}^n V_{j}^n +  \frac{1}{2} u_{j+1}^n V_{j+1}^n + \frac{\alpha}{2} (u_{j}^n - u_{j+1}^n)
+\end{equation}
+The numerical quadrature weights $\omega_k$ involved in \eqref{eq: approximation of the convolution term} can be given by \\
+left endpoints
+\begin{equation*}
+    \omega_k = \omega_{\epsilon}(k\Delta x)\Delta x \text{ for $k = 0, \cdots, m-1$},
+\end{equation*}
+normalized left endpoint
+\begin{equation*}
+    \omega_k = \frac{\omega_{\epsilon}(k\Delta x)\Delta x}{\sum_{k=0}^{m-1} \omega_{\epsilon}(k\Delta x)\Delta}  \text{ for $k = 0, \cdots, m-1$}
+\end{equation*}
+and exact quadrature
+\begin{equation*}
+    \omega_k = \omega_{\epsilon}(k\Delta x)\Delta x \text{ for $k = 0, \cdots, m-1$},
+\end{equation*}
+One may ask whether the choice of numerical quadrature will result in different outcomes when implementing the finite volume scheme \eqref{eq: CFD of general f} together with \eqref{eq: flux at left} and \eqref{eq: flux at right}. That is, whether the scheme converges for some numerical quadratures but fails to converge for others.\\
+This question is addressed in \cite{blandin2016} through numerical experiments and mathematical explanations. In the next section, we also provide an answer based on numerical experiments.
+
+
+
+
+
+
+
+
+
+
+
+
