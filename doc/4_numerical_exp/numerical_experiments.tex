@@ -1,0 +1,28 @@
+\section{Numerical Experiments}
+
+\subsection{Comparison of Left Endpoints and Normalized Left Endpoints}
+
+We compare the quadrature weights obtained from the left endpoints and the normalized left endpoints.
+
+For the Riemann problem \eqref{eq: Riemann problem}, we choose $u_L = 0.6$ and $u_R = 0.1$ such that the problem becomes to solve
+\begin{equation}\label{eq:sloving rarefaction}
+    \begin{split}
+        u_{t} + f(u)_{x} & = 0 \\
+        u(x,0)           & =
+        \begin{cases}
+            0.6 & \text{if } x < 0 \\
+            0.1 & \text{if } x > 0
+        \end{cases}
+    \end{split}
+\end{equation}
+Since $f(u) = u(1-u)$ is a convex function, $h$ in \eqref{eq:h} equals $f$ itself. Thus, the entropy solution is given by:
+\begin{equation}\label{eq: u_l_gt_u_r}
+    u(x,t) =
+    \begin{cases}
+        0.6               & \text{for } x \leq -0.2t,         \\
+        \dfrac{t - x}{2t} & \text{for } -2t \leq x \leq 0.8t, \\
+        0.1               & \text{for } x \geq 0.8t.
+    \end{cases}
+\end{equation}
+
+We plot $u$ at $t = 1$ over the domain $[x_L, x_R] = [-2, 2]$ together with both the local and nonlocal numerical approximations. The linear decreasing kernel $\omega_{\epsilon}(y) = \frac{2(\epsilon-y)}{\epsilon^2}$ is used. The parameters $\alpha, \Delta x$ and $\Delta t$ are set to $2, 0.004$ and $0.002$(\textcolor{red}{Clarification is needed on why the parameters are sufficiently}), respectively. After running the code for $\epsilon = 0.01$, the results are as follows.

@@ -8,26 +8,39 @@ Designing the finite difference method consists of four steps:
     \item Solving the discretized problem.
 \end{enumerate}
 
-If we take a look at step 3, it requires that solutions have to be smooth sufficiently. However, solutions of conservations laws may not be differentiable or even continuous. For this and other reasons, we have to adapt the steps above to design
-a reasonable numerical method. That is a numerical method appropriate to our problem which is called a finite volume scheme.
+If we take a look at step 3, it requires that solutions have to be smooth sufficiently. However, solutions of conservations laws may not be differentiable or even continuous. For this and other reasons, we have to adapt the steps above to design a reasonable numerical method.
 
 \subsection{Discretizing the domain and control volumes}
-For simplicity, we consider a uniform discretization of both the one dimensional spatial domain $[x_L, x_R]$ and temporal domain $[0, T]$.
-We split the spatial domain into $\mathcal{C}_{j}$ called control volumes, which are smaller and non-overlapping subdomains, such that
+For simplicity, we consider a uniform discretization of both the one-dimensional spatial domain $[x_L, x_R]$ and the temporal domain $[0, T]$.
+We split the spatial domain $\Omega = [x_L, x_R]$ into $K$ smaller subdomains $\Omega^{j}$, such that
 \begin{equation}
     \begin{split}
-        [x_L, x_R] & = \bigcup_{j=0}^{K} [x_L+j\Delta x, x_L+(j+1) \Delta x]     \\
-                   & = \bigcup_{j=0}^{K} [x_{j- \frac{1}{2}}, x_{j+\frac{1}{2}}] \\
-                   & = \bigcup_{j=0}^{K} \mathcal{C}_{j}
+        \Omega & = \bigcup_{j=0}^{K-1} \Omega^{j}                                \\
+               & = \bigcup_{j=0}^{K-1} [x_L + j\Delta x,\; x_L + (j+1)\Delta x],
     \end{split}
 \end{equation}
-where $\Delta x = \frac{x_R -x_L}{K+1}$.
+where $\Delta x = \dfrac{x_R - x_L}{K}$.
 
-We denote each midpoint of each $\mathcal{C}_{j}$ by
-$x_j = x_L + (j + \frac{1}{2}) \Delta x$ for $j = 0,\cdots \cdots, K$.
+We denote the midpoint of each $\Omega^{j}$ by
+\[
+    x_j = x_L + \Big(j + \tfrac{1}{2}\Big)\Delta x,\quad j = 0,\dots,K-1,
+\]
+and use each midpoint value to define the computational cells or control volumes:
+\[
+    \mathcal{C}_{j} = [x_{j-\frac{1}{2}},\, x_{j+\frac{1}{2}}),
+\]
+where the left interface $x_{j-\frac{1}{2}}$ and the right interface $x_{j+\frac{1}{2}}$ of $\mathcal{C}_{j}$ are given by
+\[
+    x_{j-\frac{1}{2}} = x_j - \tfrac{\Delta x}{2},\quad
+    x_{j+\frac{1}{2}} = x_j + \tfrac{\Delta x}{2}.
+\]
 
-Setting $\Delta t = \frac{T}{N+1}$, we discretize the temporal domain $[0,T]$ as
-$ 0= t^{0} < t^{1} < \cdots < t^{N} < t^{N+1} = T$ where each $t^n = n  \Delta t $ for $n = 0,\cdots \cdots, N+1$.
+We have now split $\Omega$ into $K$ smaller non-overlapping subdomains called control volumes $\mathcal{C}_j$. These control volumes are essential for the finite volume method, as pointwise evaluation does not make sense.
+
+Setting $\Delta t = \frac{T}{N}$, we also discretize the temporal domain $[0,T]$ as
+\[
+    0 = t^{0} < t^{1} < \dots < t^{N} = T,\quad \text{where } t^n = n\Delta t,\; n = 0,\dots,N.
+\]
 
 \subsection{Cell averages and a finite volume scheme}
 As solutions of conservations laws may be discontinuous, pointwise evaluation does not make sense. Instead, at each time level $t^n$, we take cell averages:
@@ -43,7 +56,7 @@ Taking an integral of \eqref{eq:local model} over the domain $[x_{j- \frac{1}{2}
     +\int_{t^n}^{t^{n+1}} \int_{x_{j-\frac{1}{2}}}^{x_{j+\frac{1}{2}}} f(u)_{x} \,dx \, dt = 0
 \end{align*}
 
-And applying the fundamental theorem of calculus yields
+And applying the fundamental theorem of calculus yields (\textcolor{red}{Clarification is needed on why this theorem is applicable})
 \begin{equation}\label{eq:fundamental theorem}
     \begin{split}
         \int_{x_{j-\frac{1}{2}}}^{x_{j+\frac{1}{2}}} u(x, t^{n+1}) \,dx
@@ -58,13 +71,13 @@ Defining the numerical fluxes
     \end{split}
 \end{equation}
 and dividing both sides of $(10)$ by $\Delta x$, we obtain
-\begin{equation} \label{eq:CFD with numerical fluxes}
+\begin{equation} \label{eq:FVM with numerical fluxes}
     \begin{split}
         u_{j}^{n+1} = u_{j}^{n} - \frac{\Delta t}{\Delta x}( {\bar{F}}_{j+ \frac{1}{2}} -{\bar{F}}_{j- \frac{1}{2}})
     \end{split}
 \end{equation}
-Note that the relation in \eqref{eq:CFD with numerical fluxes} is not explicit, since $\bar{F}$ requires a priori knowledge of the exact solution. By introducing an appropriate approximation of the numerical flux $\bar{F}$ by $F$, we obtain the finite volume scheme for a general flux $f$:
-\begin{equation}\label{eq: CFD of general f}
+Note that the relation in \eqref{eq:FVM with numerical fluxes} is not explicit, since $\bar{F}$ requires a priori knowledge of the exact solution. By introducing an appropriate approximation of the numerical flux $\bar{F}$ by $F$, we obtain the finite volume scheme for a general flux $f$:
+\begin{equation}\label{eq: FVM of general f}
     \begin{split}
         u_{j}^{n+1} = u_{j}^{n} - \frac{\Delta t}{\Delta x} (F_{j+\frac{1}{2}} - F_{j-\frac{1}{2}})
     \end{split}
@@ -75,10 +88,10 @@ Note that the relation in \eqref{eq:CFD with numerical fluxes} is not explicit, 
 Let the flux be defined as $f = uV$, where $V$ is the nonlocal operator given in \eqref{eq: nonlocal operator}. There are several ways to specify the nonlocal numerical fluxes. In this work, we focus on a Lax-Friedrichs type scheme; see the approaches in \cite{blandin2016} and \cite{huang2024}.
 let us set
 \begin{equation}\label{eq: approximation of the convolution term}
-    V_{j}^{n} = 1 - \Delta x \sum_{k=0}^{m-1} \omega_k u_{j+k}^{n},
+    V_{j}^{n} = 1 - \Delta x \sum_{k=0}^{m-1} w_k u_{j+k}^{n},
 \end{equation}
-Where $\{ \omega_k \}_{k= 0}^{m-1}$ is a set of numerical quadrature weights that are used to approximate the nonlocal kernel $\omega_{\epsilon}$ and $m= \lceil \frac{\epsilon}{\Delta x} \rceil$ is the number of cells involved in $V$. \\
-We now take the numerical fluxes in  \eqref{eq: CFD of general f} as following:
+Where $\{ w_k \}_{k= 0}^{m-1}$ is a set of numerical quadrature weights that are used to approximate the nonlocal kernel $\omega_{\epsilon}$ and $m= \lceil \frac{\epsilon}{\Delta x} \rceil$ (\textcolor{red}{Clarification is needed on what does $\lceil \rceil$ define}) is the number of cells involved in $V$. \\
+We now take the numerical fluxes in  \eqref{eq: FVM of general f} as following:
 \begin{equation}\label{eq: flux at left}
     F_{j-\frac{1}{2}} = \frac{1}{2} u_{j-1}^n V_{j-1}^n +  \frac{1}{2} u_{j}^n V_{j}^n + \frac{\alpha}{2} (u_{j-1}^n - u_{j}^n)
 \end{equation}
@@ -86,23 +99,55 @@ and
 \begin{equation}\label{eq: flux at right}
     F_{j+\frac{1}{2}} = \frac{1}{2} u_{j}^n V_{j}^n +  \frac{1}{2} u_{j+1}^n V_{j+1}^n + \frac{\alpha}{2} (u_{j}^n - u_{j+1}^n)
 \end{equation}
-The numerical quadrature weights $\omega_k$ involved in \eqref{eq: approximation of the convolution term} can be given by \\
+Where $\alpha > 0$ is a numerical viscosity constant and the numerical quadrature weights $w_k$ involved in \eqref{eq: approximation of the convolution term} can be given by \\
 left endpoints
 \begin{equation*}
-    \omega_k = \omega_{\epsilon}(k\Delta x)\Delta x \text{ for $k = 0, \cdots, m-1$},
+    w_k = \omega_{\epsilon}(k\Delta x)\Delta x \text{ for $k = 0, \cdots, m-1$},
 \end{equation*}
 normalized left endpoint
 \begin{equation*}
-    \omega_k = \frac{\omega_{\epsilon}(k\Delta x)\Delta x}{\sum_{k=0}^{m-1} \omega_{\epsilon}(k\Delta x)\Delta}  \text{ for $k = 0, \cdots, m-1$}
+    w_k = \frac{\omega_{\epsilon}(k\Delta x)\Delta x}{\sum_{k=0}^{m-1} \omega_{\epsilon}(k\Delta x)\Delta}  \text{ for $k = 0, \cdots, m-1$}
 \end{equation*}
 and exact quadrature
 \begin{equation*}
-    \omega_k = \omega_{\epsilon}(k\Delta x)\Delta x \text{ for $k = 0, \cdots, m-1$},
+    w_k = \int_{kh}^{min\{(k+1)\Delta x,\epsilon \}}\omega_{\epsilon}(y) \,dy \text{ for $k = 0, \cdots, m-1$}
 \end{equation*}
-One may ask whether the choice of numerical quadrature will result in different outcomes when implementing the finite volume scheme \eqref{eq: CFD of general f} together with \eqref{eq: flux at left} and \eqref{eq: flux at right}. That is, whether the scheme converges for some numerical quadratures but fails to converge for others.\\
-This question is addressed in \cite{blandin2016} through numerical experiments and mathematical explanations. In the next section, we also provide an answer based on numerical experiments.
+One may ask whether the choice of numerical quadrature will result in different outcomes when implementing the finite volume scheme \eqref{eq: FVM of general f} together with the numerical fluxes \eqref{eq: flux at left} and \eqref{eq: flux at right}. That is, whether the scheme converges for some numerical quadratures but fails to converge for others.\\
+This question is addressed in \cite{blandin2016} through numerical experiments and mathematical explanations. We will return to this question in the next section, but for now we consider two main aspects related to the finite volume scheme: the boundary conditions and stability.
 
+\subsection{The Boundary Conditions}
 
+The algorithm for solving \eqref{eq:nonlocal_model} using the finite volume scheme given in \eqref{eq: FVM of general f} together with \eqref{eq: flux at left} and \eqref{eq: flux at right} becomes:
+\[
+    \begin{aligned}
+        \textbf{STEP 1.}   \text{ Initialize } u_{j}^{0} \text{ by setting:}                                                             \\
+         & u_{j}^{0} = \frac{1}{\Delta x}\int_{x_{j-\frac{1}{2}}}^{x_{j+\frac{1}{2}}} u_{0}(x)\,dx, \quad \forall j \in \{0,\dots,K-1\}.
+    \end{aligned}
+\]
+
+\[
+    \begin{aligned}
+        \textbf{STEP 2.}  \text{ For } n = 0,\dots,N-1, \text{ compute:}                                                                                           \\
+         & u_{j}^{n+1} = u_{j}^{n} - \frac{\Delta t}{\Delta x}\big(F_{j+\frac{1}{2}} - F_{j-\frac{1}{2}}\big)                                                      \\
+         & \qquad = \frac{1}{2}\big(u_{j+1}^{n}V_{j+1}^{n} - u_{j-1}^{n}V_{j-1}^{n}\big) - \frac{\alpha}{2}\big(u_{j+1}^{n} + u_{j-1}^{n}\big) + \alpha u_{j}^{n}.
+    \end{aligned}
+\]
+
+The second step is also supposed to hold for all $j \in \{0,\dots,K-1\}$. However, for $j = 0$ we obtain:
+\[
+    u_{0}^{n+1} = \frac{1}{2}\big(u_{1}^{n}V_{1}^{n} - u_{-1}^{n}V_{-1}^{n}\big) - \frac{\alpha}{2}\big(u_{1}^{n} + u_{-1}^{n}\big) + \alpha u_{0}^{n},
+\]
+and for $j = K-1$:
+\[
+    u_{K-1}^{n+1} = \frac{1}{2}\big(u_{K}^{n}V_{K}^{n} - u_{K-2}^{n}V_{K-2}^{n}\big) - \frac{\alpha}{2}\big(u_{K}^{n} + u_{K-2}^{n}\big) + \alpha u_{K-1}^{n}.
+\]
+
+We observe that for $j = 0$ and $j = K-1$, the scheme involves undefined terms such as $u_{-1}, V_{-1}, u_{K},$ and $V_{K}$. Therefore, without additional information the finite volume scheme is valid only for internal nodes $j \in \{1,\dots,K-2\}$.
+
+The above discussion indicate that specifying boundary conditions are needed in order to find the values $u_{0}^{n+1}$ and $u_{K-1}^{n+1}$.
+Well, there are several options for specifying the boundary conditions to the spatial domain $[x_L, x_R]$ such us
+Artifcial, Dirichlet, Neumann and Periodic. We consider here Artifcial boundary conditions for the remaining see [\textcolor{red}{ Citation is needed here}]
+\subsection{The Stability of the Finite Volume Scheme}
 
 
 
