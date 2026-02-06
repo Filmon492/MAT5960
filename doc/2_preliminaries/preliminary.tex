@@ -24,14 +24,17 @@ the velocity, so we need a nonlocal model which is on the following form
 where now $V$ is a nonlocal operator, say,
 \begin{equation} \label{eq: nonlocal operator}
     \begin{split}
-        V(u)(x,t) = v(u*\omega_{\epsilon}) \\
-        = 1- \int_{0}^{\epsilon} \omega_{\epsilon}(y) u(x+y,t) \, dy
+        \begin{aligned}
+            V(u)(x,t) & = v(u*\omega_{\epsilon})                                                                         \\
+                      & = 1- \int_{0}^{\epsilon} \omega_{\epsilon}(y) u(x+y,t) \, dy                                     \\
+                      & = 1 - \int_{x}^{x+\epsilon} \omega_{\epsilon}(y-x) u(y,t) \, dy \qquad \text{Change of variable}
+        \end{aligned}
     \end{split}
 \end{equation}
 for some
 nonlocal kernel $\omega_{\epsilon}: [0,\epsilon] \rightarrow \mathbb{R}$ satisfying $\omega_{\epsilon} \geq 0$ and $\int_{0}^{\epsilon} \omega_{\epsilon}(y)  \, dy = 1$.
 Formally speaking, $V(u) \rightarrow v(u)$ as $\epsilon \rightarrow 0$, but whether the corresponding solutions
-$u_{\epsilon}$ of \eqref{eq:nonlocal_model} converge to a solution of \eqref{eq:local model}, is the key question that has been studied in the literature (need a citation).
+$u_{\epsilon}$ of \eqref{eq:nonlocal_model} converge to a solution of \eqref{eq:local model}, is the key question that has been studied in the literature (\textcolor{red}{ Citation is needed here}).
 
 In conclusion, let us denote \eqref{eq:local model} and \eqref{eq:nonlocal_model} the local and nonlocal model, respectively. We are then aiming
 to approximate solutions of the local model by solutions of the nonlocal model, where the solution $u(x,t)$ represents the density of cars which is the
@@ -41,7 +44,7 @@ number of cars per square meter.
 For numerical experiments we need entropy solutions for different initial data. Hence, we briefly mention the notion of weak solution
 and entropy solution.
 
-\begin{definition}[Weak solutions]
+\begin{definition}[Weak solution]
     A function $u \in L^{\infty}(\mathbb{R} \times \mathbb{R_{+}})$ is a weak solution of \eqref{eq:local model} with initial
     data $u_{0} \in L^{\infty}(\mathbb{R})$ if the following identity holds for all test functions $\phi \in C^{1}(\mathbb{R} \times \mathbb{R_{+}})$
     \begin{equation}
@@ -53,11 +56,10 @@ and entropy solution.
 \end{definition}
 Since weak solutions are not unique, some additional conditions have to be imposed in order to pick a weak solution
 that describes the physical flow correctly. One such condition is entropy condition.
-Detailed characteristics of the entropy solution can be found in \cite{Ulrik2015_entropy}.
-
+Detailed properties of the entropy solution can be found in \cite{Ulrik2015_entropy}.
 We now look at the explicit solutions for the Riemann problem.
 The Riemann problem is the initial value problem
-\begin{equation}
+\begin{equation}\label{eq: Riemann problem}
     \begin{split}
         \partial_{t} u + \nabla \cdot f(u) & = 0 \\
         u(x,0)                             & =
@@ -69,7 +71,7 @@ The Riemann problem is the initial value problem
 \end{equation}
 
 Solution of this equation is constructed as
-\begin{equation}
+\begin{equation}\label{eq: Riemann solution}
     u(x,t)=
     \begin{cases}
         u_{l}                  & \text{for } x \leq h'(u_l)t               \\
@@ -78,7 +80,7 @@ Solution of this equation is constructed as
     \end{cases}
 \end{equation}
 where $h(u)$ is defined by
-\begin{equation}
+\begin{equation}\label{eq:h}
     h(u) =
     \begin{cases}
         \sup\{ g(u) \mid g \leq f \text{ and } g \text{ is convex on } [u_l, u_r] \}  & \text{if } u_l < u_r, \\

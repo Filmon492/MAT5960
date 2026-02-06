@@ -1,0 +1,16 @@
+Adding a viscous term $\alpha u_{xx}$ to \eqref{eq:loc}, where $\alpha > 0$ the viscosity coefficient, we obtain
+\begin{equation}\label{eq:viscous PDE}
+    \begin{split}
+        u_{t} + f(u)_{x} = \alpha u_{xx}
+    \end{split}
+\end{equation}
+The solution of \eqref{eq:viscous PDE} is smooth and converges to the solution of \eqref{eq:nonlocal_model} as $\alpha \rightarrow 0$, see \textcolor{red}{Citation is needed}.
+
+We can now safely discretize \eqref{eq:viscous PDE} using forward finite difference in time and a central second order finite difference in spatial:
+\begin{equation}\label{eq:update scheme}
+    \begin{split}
+        \frac{u_{j}^{n+1}- u_{j}^n}{\Delta t} = - \frac{f(u_{j+1}^{n})- f(u_{j-1}^{n})}{2\Delta x} + \frac{\alpha}{\Delta x^2}( u_{j+1}^{n} - 2u_{j}^{n} + u_{j-1}^{n})   \\
+        u_{j}^{n+1} = u_{j}^n - \frac{\Delta t}{2 \Delta x}(f(u_{j+1}^{n})- f(u_{j-1}^{n})) + \frac{\alpha \Delta t}{\Delta x^2}( u_{j+1}^{n} - 2u_{j}^{n} + u_{j-1}^{n}) \\
+        u_{j}^{n+1} = u_{j}^n - \frac{\Delta t}{2 \Delta x}(u_{j+1}^{n} V_{j+1}^n - u_{j-1}^{n}V_{j-1}^n) + \frac{\alpha \Delta t}{\Delta x^2}( u_{j+1}^{n} - 2u_{j}^{n} + u_{j-1}^{n})
+    \end{split}
+\end{equation}

@@ -1,9 +1,7 @@
 \section{Numerical Experiments}
-
-\subsection{Comparison of Left Endpoints and Normalized Left Endpoints}
-
-We compare the quadrature weights obtained from the left endpoints and the normalized left endpoints.
-
+In the previous section we have devolved the Lax-Friedrichs scheme and described the complete algorithm on how to implement the scheme. In this section we consider if the numerical solutions converge to the correct solution numerically.
+\subsection{Comparison of Left endpoint  and Normalized Left endpoint }
+We start by comparing the quadrature weights obtained from the left endpoint  and the normalized left endpoint .
 For the Riemann problem \eqref{eq: Riemann problem}, we choose $u_L = 0.6$ and $u_R = 0.1$ such that the problem becomes to solve
 \begin{equation}\label{eq:sloving rarefaction}
     \begin{split}
@@ -16,7 +14,7 @@ For the Riemann problem \eqref{eq: Riemann problem}, we choose $u_L = 0.6$ and $
     \end{split}
 \end{equation}
 Since $f(u) = u(1-u)$ is a convex function, $h$ in \eqref{eq:h} equals $f$ itself. Thus, the entropy solution is given by:
-\begin{equation}\label{eq: u_l_gt_u_r}
+\begin{equation}\label{eq: u_L > u_R}
     u(x,t) =
     \begin{cases}
         0.6               & \text{for } x \leq -0.2t,         \\
@@ -25,4 +23,140 @@ Since $f(u) = u(1-u)$ is a convex function, $h$ in \eqref{eq:h} equals $f$ itsel
     \end{cases}
 \end{equation}
 
-We plot $u$ at $t = 1$ over the domain $[x_L, x_R] = [-2, 2]$ together with both the local and nonlocal numerical approximations. The linear decreasing kernel $\omega_{\epsilon}(y) = \frac{2(\epsilon-y)}{\epsilon^2}$ is used. The parameters $\alpha, \Delta x$ and $\Delta t$ are set to $2, 0.004$ and $0.002$(\textcolor{red}{Clarification is needed on why the parameters are sufficiently}), respectively. After running the code for $\epsilon = 0.01$, the results are as follows.
+We plot $u$ at $t = 1$ over the domain $[x_L, x_R] = [-2, 2]$ together with both the local and nonlocal numerical approximations. The linear decreasing kernel $\omega_{\epsilon}(y) = \frac{2(\epsilon-y)}{\epsilon^2}$ is used and the viscosity coefficient $\beta$ is set to $2$.\\
+%The parameters $\alpha, \Delta x$ and $\Delta t$ are set to $2, 0.004$ and $0.002$(\textcolor{red}{Clarification is needed on why the parameters are sufficiently}), respectively.\\
+\textbf{Numerical experiment 1a}: \\
+We begin by implementing the finite volume scheme designed in the previous section for $\epsilon = 0.1$ and $\Delta x = 0.02$
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{exp_1a.pdf}
+    \caption{Numerical solutions and entropy solution at t = $1$ corresponding to the left endpoint numerical quadrature weights (left) and the normalized left endpoint numerical quadrature weights (right).}
+    \label{fig:exp_1a}
+\end{figure}
+As shown in Figure~\ref{fig:exp_1a}, the choice of numerical quadrature weights does not lead to a significant difference between the numerical solutions and the entropy solution. Nevertheless, a low level of accuracy remains at the shocks, where the numerical solutions deviate noticeably from the entropy solution. We aim to achieve convergence of the numerical solutions to the entropy solution as $\Delta x$ and $\epsilon$ tend to zero simultaneously.
+
+\textbf{Numerical experiment 1b}: \\
+Next we examine the implementation for $\epsilon = 0.01$ and $\Delta x = 0.01$
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{exp_1b.pdf}
+    \caption{Numerical solutions and entropy solution at t = $1$ corresponding to the left endpoint numerical quadrature weights (left) and the normalized left endpoint numerical quadrature weights (right).}
+    \label{fig:exp_1b}
+\end{figure}
+
+As observed in Figure~\ref{fig:exp_1b}, contrary to our expectations, the left endpoint numerical quadrature weights cause the numerical solution of the nonlocal model to deviate further from both the numerical solution of the local model and the entropy solution. In contrast, the normalized left endpoint quadrature weights lead to improved accuracy and better alignment between the numerical solutions and the entropy solution.
+
+\textbf{Numerical experiment 1b}: \\
+Even when taking smaller parameter values, $\epsilon = 0.001$ and $\Delta x = 0.004$, the numerical solution of the nonlocal model obtained using the left endpoint numerical quadrature weights completely fails, in the sense that it does not even appear in Figure~\ref{fig:exp_1c}. By contrast, significantly better accuracy is observed when using the normalized left endpoint numerical quadrature weights.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{exp_1c.pdf}
+    \caption{Numerical solutions and entropy solution at t = $1$ corresponding to the left endpoint numerical quadrature weights (left) and the normalized left endpoint numerical quadrature weights (right).}
+    \label{fig:exp_1c}
+\end{figure}
+Summary.\\
+The numerical experiments above demonstrate that, as $\Delta x$ and $\epsilon$ tend to zero simultaneously, while the finite volume scheme based on left endpoint quadrature weights becomes increasingly inaccurate and eventually fails to produce a meaningful numerical solution, the normalized left endpoint quadrature weights consistently maintain stability and improved alignment with the entropy solution. These results indicate that the choice of numerical quadrature weights plays a crucial role in ensuring consistency between the Lax-Friedrichs scheme and the local model. For the sake of consistency it's required that the numerical quadrature weights satisfy the normalized condition $\sum_{k=0}^{m-1} w_k = 1$.
+
+\subsection{Convergence Analysis}
+Based on the numerical experiments above, the Lax-Friedrichs scheme seems consistent and stable when using the normalized left endpoint quadrature weights.
+
+Let us continue the numerical experiment to determine the convergence and order of convergence.
+Denote $U^{C_j}$ and $U_{e}^{C_j}$ as the approximate solution and the
+exact solution at cell $C_j$, respectively. Let the error at $C_j$ be $e^{C_j} = U_{e}^{C_j} - U^{C_j} $, and we wish to get it's size as small as possible.
+
+We measure the size of the global error $e= \sum_{j=0}^{K-1} e^{C_j}$ using the discrete $\ell^{1}$ norm
+\begin{align*}
+    \| e\Vert_{\ell^{1}} = \Delta x \sum_{k=0}^{K-1} | e^{C_j} \vert
+\end{align*}
+and say that the Lax-Friedrichs scheme converges to the entropy (exact) solution if the global error $\| e\Vert_{\ell^{1}} \rightarrow 0$ as $\Delta x \rightarrow 0$.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{Conver_1.pdf}
+    \caption{$\ell^1$ error vs. number of cells}
+    \label{fig:Conver_1}
+\end{figure}
+Figure~\ref{fig:Conver_1} shows that the discrete $\ell^{1}$-error tends to zero as the number of cells increases.
+In other words, the Lax--Friedrichs scheme converges to the entropy solution as $\Delta x \to 0$.
+A natural question is: how fast does it converge?
+To answer this, we study the order of convergence $r$.
+
+We assume that the $\ell^{1}$ error on a mesh of size $\Delta x_i$ can be written as
+\begin{align*}
+    E_i = C\,(\Delta x_i)^r,
+\end{align*}
+for some constant $C>0$.
+If we have the error at two consecutive refinement levels $(E_{i-1},E_i)$, then
+\begin{align*}
+    \frac{E_{i-1}}{E_i}
+    =\left(\frac{\Delta x_{i-1}}{\Delta x_i}\right)^{r}.
+\end{align*}
+
+Taking logarithms, we obtain the standard expression for the order of convergence $r$:
+\begin{align*}
+    r =
+    \frac{\log(E_{i-1}) - \log(E_i)}
+    {\log(\Delta x_{i-1}) - \log(\Delta x_i)}.
+\end{align*}
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ |p{3cm}||p{3cm}| |p{3cm}|}
+        \hline
+        \textbf{Number of cells } & \textbf{Global error $e$} & \textbf{Order of convergence $r$} \\
+        \hline
+        20                        & 0.050                     & 0.536                             \\
+        40                        & 0.035                     & 0.611                             \\
+        80                        & 0.023                     & 0.648                             \\
+        160                       & 0.014                     & 0.685                             \\
+        320                       & 0.009                     & 0.722                             \\
+        640                       & 0.005                     & 0.755                             \\
+        1280                      & 0.003                     & 0.785                             \\
+        2560                      & 0.002                     & 0.810                             \\
+        5120                      & 0.001                     & 0.831                             \\
+
+        \hline
+    \end{tabular}
+    \caption{The global error $e$ and the order of convergence $r$ for the Riemann problem with $u_L > u_R$.}
+    \label{tab:table 1}
+\end{table}
+
+Table~\ref{tab:table1} shows the global error $e$ and the observed order of convergence $r$ for the
+Riemann problem with $u_L > u_R$.
+The corresponding entropy solution is a rarefaction wave (see~\eqref{eq: u_L > u_R}).
+We observe that the order of convergence remains below $1$, indicating relatively slow convergence. The Lax-Friedrichs scheme is expected to be at most first order accurate because it is based on a piecewise constant approximation.
+
+If instead we choose $u_L = 0.1$ and $u_R = 0.6$ for the Riemann problem~\eqref{eq: Riemann problem}, the entropy solution is
+\begin{align*}
+    u(x,t) =
+    \begin{cases}
+        0.1 & \text{if } x < 0.3t \\
+        0.6 & \text{if } x > 0.3t
+    \end{cases}
+\end{align*}
+which contains a single shock.
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ |p{3cm}||p{3cm}| |p{3cm}|}
+        \hline
+        \textbf{Number of cells } & \textbf{Global error $e$} & \textbf{Order of convergence $r$} \\
+        \hline
+        20                        & 0.046                     & 0.746                             \\
+        40                        & 0.027                     & 0.802                             \\
+        80                        & 0.016                     & 0.903                             \\
+        160                       & 0.008                     & 0.976                             \\
+        320                       & 0.004                     & 0.999                             \\
+        640                       & 0.002                     & 1.000                             \\
+        1280                      & 0.001                     & 1.000                             \\
+        2560                      & 0.001                     & 1.000                             \\
+        5120                      & 0.000                     & 1.000                             \\
+
+        \hline
+    \end{tabular}
+    \caption{The global error $e$ and the order of convergence $r$ for the Riemann problem with $u_L < u_R$.}
+    \label{tab:table 2}
+\end{table}
+Table~\ref{tab:table 2} reports the corresponding convergence results.
+In this case, the observed order of convergence reaches $1$,
+indicating faster convergence.
