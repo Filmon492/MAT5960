@@ -23,8 +23,8 @@ class Local_Conservation_Laws:
         self.T= T
         self.x_L = x_L
         self.x_R = x_R
-        self.h = (self.x_R - self.x_L)/(self.K+1)
-        self.dt = self.T/(self.N+1)
+        self.h = (self.x_R - self.x_L)/(self.K) # $$cancelled 1
+        self.dt = self.T/(self.N) # $$cancelled 1
         
 
     def create_mesh(self):
@@ -33,19 +33,19 @@ class Local_Conservation_Laws:
         h = self.h
         dt = self.dt
         
-        bx = np.zeros(self.K)  # Midpoint values of each cell C_j in space 
+        bx = np.zeros(self.K)  # k midpoint values of each cell C_j in space 
         for j in range(self.K):
             bx[j] = self.x_L + (j + 0.5) * h  
         
-        bt = np.zeros(self.N + 1)  # Mesh points in time 
-        for i in range(self.N + 1):
+        bt = np.zeros(self.N)  # Mesh points in time  #$$cancelled 1
+        for i in range(self.N): #$$cancelled 1
             bt[i] = dt * i
         
         return bx, bt
     
     def cell_averages(self, u0, c, d):
         """ Input: an intial function u(x,0) that will be intgrated from xj-h to xj+h.
-        This method computes the average value at each cell C_j to evaluate the value at xj,
+        This function computes the average value at each cell C_j,
         hence it returns a vector of cell averages"""
         
         C_j = quad(u0, c, d)[0] / self.h # quad is used to integrate numerically
@@ -56,7 +56,7 @@ class Local_Conservation_Laws:
         h = self.h
         U0_values = np.zeros(len(bx))
         for j in range(len(bx)):
-            U0_values[j] = self.cell_averages(u0, bx[j] - h / 2, bx[j] + h / 2)
+            U0_values[j] = self.cell_averages(u0, bx[j] - h / 2, bx[j] + h / 2) 
         return U0_values
     
     def f(self,U):
@@ -66,8 +66,10 @@ class Local_Conservation_Laws:
 
     def local_solver(self, U0, boundary_condition):
         """Solving the local conservation laws at every time step:
-        Input: array vector with the solution at t = 0
-        Returns: Plot_data with the solution vector at each time step t"""
+        Input: An array U0
+              a vector solution at t = 0 of length self.K 
+        Returns: An array plot_data of length self.K 
+                each element in plota_data is a vecor solution at each time step """
         
         h = self.h
         dt = self.dt
@@ -75,17 +77,17 @@ class Local_Conservation_Laws:
         plot_data = [U0.copy()]
       
         
-        for i in range(1, self.N + 1):  
+        for i in range(1, self.N+1):  
 
             if boundary_condition == "dirichlet":
-                U1[0] = U0[0]
-                U1[self.K - 1] = U0[self.K - 1]
+                pass
 
             elif boundary_condition == "periodic":
                 pass
 
             elif boundary_condition == "artificial":
-                pass
+                U1[0] = U0[0]
+                U1[self.K - 1] = U0[self.K - 1]
             
             idR = np.arange(1, self.K - 1)[:, None] + [0, 1]  # shape (K-2, 2)
             idL = np.arange(1, self.K - 1)[:, None] + [0, -1]
@@ -115,8 +117,7 @@ class Local_Conservation_Laws:
         
         
     
-    def l1_error(self, bx, t,numerical_solution):
-        self.t = t
+    def l1_error(self, bx, t, numerical_solution):
         h = self.h
         entropy_solution = np.zeros(self.K)
         en = np.zeros(self.K)
