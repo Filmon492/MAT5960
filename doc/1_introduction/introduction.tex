@@ -1,8 +1,20 @@
 \section{Introduction}
 Since many interesting conservation laws that arise in applications (e.g. traffic simulation) are nonlinear, it is impossible to obtain explicit solution formulas.
 Hence, we rely on designing numerical methods to approximate the solutions in the best possible way.
-When designing such methods it is natural to ask ourselves how reliable those methods could be.
+When designing such methods it is natural to ask ourselves how reliable and efficient those methods could be.
 That is significant to study the stability and convergence of the numerical methods.
 
-For the purpose of numerical experimentation we focus on the specific one dimensional traffic flow model which is
+The main ingredient in designing numerical methods is first to study the properties of the analytical solutions. These properties are significant for validating the consistency and stability of the numerical methods. The well-posedness of the local conservation laws is stated in (\textcolor{red}{Citation is needed}) through viscous approximation. That means unique entropy solutions exist. Moreover the entropy solutions satisfy $L^p$ stability estimates and are Total Variation Diminishing (TVD). Accordingly in  (\textcolor{red}{Citation is needed}) they designed conservative, consistent and monotone numerical scheme, such methods converge to the unique entropy solutions of the conservation laws as they preserve the stability estimates. The well-posedness of the nonlocal conservation laws (with non-local flux arising in traffic flow modeling) is shown in (\textcolor{red}{Citation is needed}), the proof is based on a priori $L^{\infty}$ and (TVD) estimates of a numerical method.
+To obtain convergence of numerical methods for local conservative laws, it suffices to design conservative, consistent and monotone numerical schemes. However, for nonlocal conservation laws it's not a straight forward. In addition as nonlocal conservation laws are meant to be generalization of the local conservation laws, one wants to obtain the so-called asymptotically compatibility, that is as the parameters tend to zero one obtains the solution of the local conservation laws. It is therefore things get complicated when designing numerical methods for nonlocal conservation laws.
+They designed in (\textcolor{red}{Citation is needed}) a general class of numerical methods, that is a family of finite volume schemes. Under certain conditions such that the initial data can't have a negative jump, they proved the asymptotically compatibility and asymptotic preserving property. They provided in addition numerical experiments only for the Lax--Friedrchs type scheme. In the present work we provide further numerical experiments where we take a comparison of the Lax--Friedrchs type scheme and Godunov type scheme, and conclude that the Godunov type scheme is the efficient one.
+
+Those scheme are however first order accurate. High-resolution schemes are needed in practice in order to increase the computational efficiency. A second order numerical scheme for the nonlocal conservation laws have been devolved in  (\textcolor{red}{Citation is needed}).
+
+
+
+
+
+
+
+Through out this thesis we focus on the specific one dimensional traffic flow model which is
 modeled by a nonlocal conservation law. In other words the goal is to design an efficient numerical method and ultimately to prove that the method convergences to the correct solution.

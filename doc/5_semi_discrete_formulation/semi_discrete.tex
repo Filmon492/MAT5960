@@ -1,0 +1,415 @@
+
+\section{A Second order Numerical Scheme}
+\subsection{Semidiscrete Formulation}
+The integral form of the conservation law we stated in section 3 is suitable for first order accurate schemes. In order to drive higher order schemes, we need a more flexible formulation which is called a semidiscrete formulation. This formulation allows us to separately increase the order of spatial and temporal accuracy, see \textcolor{red}{Citation needed here}.
+
+Taking now each cell average over $C_j$ to be given by
+\begin{equation}
+    \begin{split}
+        u_j(t) = \frac{1}{\Delta x}\int_{x_{j-\sfrac{1}{2}}}^{x_{j+\sfrac{1}{2}}} u(x,t) \,dx
+    \end{split}
+\end{equation}
+and integrating \eqref{eq:local model} over the domain $C_j$
+\begin{align*}
+    \int_{x_{j-\sfrac{1}{2}}}^{x_{j+\sfrac{1}{2}}} u_{t} + f(u)_{x} \,dx  = 0
+\end{align*}
+gives us
+\[
+    \frac{d}{dt}u_j(t) + \sfrac{1}{\Delta x}\Bigl(f(u(x_{j+\sfrac12}^{-},t))- f(u(x_{j-\sfrac12}^{+},t))\Bigr)
+\]
+where
+\[
+    u(x_{j+\sfrac12}^{-},t) = \lim_{x\rightarrow x_{j+\sfrac12}^{-}} u(x,t)\]
+and
+\[
+    u(x_{j+\sfrac12}^{+},t) = \lim_{x\rightarrow x_{j+\sfrac12}^{+}} u(x,t)
+\]
+denotes the left and right-limit of $u$ at $x_{j+\sfrac12}$, respectively.
+
+Let $F$ be an approximation of the fluxes such that,
+\[
+    F_{j+\sfrac12}^{\pm} \approx f(u(x_{j+\sfrac12}^{\pm},t)),
+\]
+then we obtain the semidiscrete formulation as
+\begin{equation}\label{eq:semidiscrete}
+    \begin{cases}
+        \frac{d}{dt}u_j(t) + \frac{1}{\Delta x}\Bigl(F_{j+\frac12}^{-}- F_{j-\frac12}^{+}\Bigr) = 0 \\[2ex]
+        u_j(0)= \int_{x_{j-\sfrac12}}^{x_{j+\sfrac12}} u_0{x} \, dx
+    \end{cases}
+\end{equation}
+Which is a system of ODEs that must be integrated in time by a suitable time integration
+routine.
+\subsection{Second Order Semidiscrete Scheme}
+Having the semidiscrete formulation \eqref{eq:semidiscrete}, we can now separately increase
+the order of spatial and temporal accuracy. We observe in the formulation above that we need the edge values $u_j^{\pm} = u(x_{j +\sfrac{1}{2}}^\pm,t)$. If we let the edge values to be piecewise constants in space and apply a forward Euler time integration, we obtain the standard first-order finite volume scheme. In order to obtain a second-order finite volume scheme, we need to construct a linear piecewise function in each cell, so the edge values are evaluated on the reconstructed functions.
+
+Given a cell average $u_j^{n}$ of $C_j$ at time $t^n$, we can construct a linear function
+\[
+    \bar{u}_j(x)= u_j^{n} + \sigma_j \frac{x-x_j}{\Delta x}, \quad x \in C_j
+\]
+where the slope $\sigma_j$ is selected, such that $\bar{u}_j(x)$ is conservative and satisfy the TVD property.
+
+We choose the slope by the minmod limiter
+\[
+    \sigma_j^n
+    =
+    minmod\!\left(
+    u_j^n-u_{j-1}^n,\,
+    \frac12(u_{j+1}^n-u_{j-1}^n),\,
+    u_{j+1}^n-u_j^n
+    \right).
+\]
+Here
+\[
+    minmod(a_1,\dots,a_m)
+    =
+    \begin{cases}
+        \operatorname{sgn}(a_1)\min_{1\leq \ell\leq m}|a_\ell|,
+           & \text{if } \operatorname{sgn}(a_1)=\cdots=\operatorname{sgn}(a_m), \\[1mm]
+        0, & \text{otherwise}.
+    \end{cases}
+\]
+We can now use $\bar{u}_j$ to approximate $u(x_{j+\sfrac12}^{-},t)$ and $u(x_{j+\sfrac12}^{+},t)$, such that the left and right-limit values are given by
+\begin{align*}
+    u_{j+\frac12}^- & := \lim_{x\rightarrow x_{j+\sfrac12}^{-}} \bar{u}_j(x) \\
+                    & =u_j^n+\frac12\sigma_j^n
+\end{align*}
+and
+\begin{align*}
+    u_{j+\frac12}^+ & := \lim_{x\rightarrow x_{j+\sfrac12}^{+}} \bar{u}_j(x) \\
+                    & =u_{j+1}^n-\frac12\sigma_{j+1}^n
+\end{align*}
+In section $3$ we approximated the convolution term
+\[
+    \int_{0}^{\epsilon} \omega_{\epsilon}(y) u(x+y,t) \, dy
+\]
+using piecewise constants, which led us to the first-order finite volume scheme. In order to obtain the second-order finite volume scheme, we approximate the convolution term using the piecewise linear function $\bar{u}(x,t)= \bar{u}_j(x)$ for $x \in C_j$ and trapezoidal rule as following:\\
+Following the approach in \textcolor{red}{Citation needed here}, we assume that the function $\omega_{\epsilon}$ is a convolution kernel with compact support in $[0,\epsilon]$.\\
+let
+\[M:=\lceil \frac{\epsilon}{\Delta x}\rceil,  \]
+and
+\[
+    I_{j+\sfrac12}:= \int_{0}^{\epsilon} \omega_{\epsilon}(y) u(x_{j+\sfrac12}+y,t) \, dy.
+\]
+We apply first $\bar{u}$ such that $u(x_{j+\sfrac12}+y,t) \approx \bar{u}(x_{j+\sfrac12}+y,t)$ to get
+\[
+    I_{j+\sfrac12} \approx \int_{0}^{\epsilon} \omega_{\epsilon}(y) \bar{u}(x_{j+\sfrac12}+y,t) \, dy \\
+\]
+\[
+    =\sum_{k=0}^{M-1} \int_{k\Delta x}^{(k+1)\Delta x} \omega_{\epsilon}(y) \bar{u}(x_{j+\sfrac12}+y,t) \, dy.
+\]
+We can now apply the trapezoidal rule to get
+\begin{align*}
+    I_{j+\sfrac12} & \approx \frac{\Delta x}{2}\sum_{k=0}^{M-1} \Bigl(\omega_{\epsilon}(k\Delta x)\bar{u}(x_{j+\sfrac12}+k\Delta x,t) + \omega_{\epsilon}((k+1)\Delta x)\bar{u}(x_{j+\sfrac12}+(k+1)\Delta x,t)\Bigr) \\
+                   & = \frac{\Delta x}{2} \sum_{k=0}^{M-1} \Bigl(\omega_{\epsilon}(k\Delta x)\bar{u}(x_{j+k+\sfrac12},t) + \omega_{\epsilon}((k+1)\Delta x)\bar{u}(x_{j+k+1+\sfrac12},t) \Bigr)                       \\
+                   & = \frac{\Delta x}{2}\sum_{k=0}^{M-1} \Bigl(w_k \bar{u}(x_{j+k+\sfrac12},t) + w_{k+1}\bar{u}(x_{j+k+\sfrac32},t) \Bigr)                                                                           \\
+                   & = \frac{\Delta x}{2}\sum_{k=0}^{M-1} \Bigl( w_k u_{j+k+\sfrac12}^+ + w_{k+1}u_{j+k+\sfrac32}^- \Bigr)                                                                                            \\
+\end{align*}
+where $w_k$ is the left end point numerical quadrature denoted by
+\[ w_k = \omega_{\epsilon}(k\Delta x), \qquad k = 0, \cdots M\]
+We have seen in section $3$ that the normalization of the numerical quadrature plays essential role in consistency between the local and nonlocal model. Hence normalization is needed here as well.\\
+Define
+\[
+    Q_{\Delta x}:= \frac{\Delta x}{2} \sum_{k=0}^{M-1} \Bigl( w_k + w_{k+1}\Bigr), \qquad \tilde{w}_k:= \frac{w_k}{Q_{\Delta x}}, \qquad k = 0, \cdots M
+\]
+So the normalization condition is satisfied, in the sense
+\[\frac{\Delta x}{2} \sum_{k=0}^{M-1} \Bigl( \tilde{w}_k + \tilde{w}_{k+1}\Bigr) = 1. \]
+If we now replace $w_k$ by $\tilde{w}_k$ in
+\[ R_{j+\sfrac12}= \frac{\Delta x}{2} \sum_{k=0}^{M-1} \Bigl( w_k u_{j+k+\sfrac12}^+ + w_{k+1}u_{j+k+\sfrac32}^- \Bigr),\]
+we get the approximation of the convolution term
+\[ R_{j+\sfrac12}= \frac{\Delta x}{2} \sum_{k=0}^{M-1} \Bigl( \tilde{w}_k u_{j+k+\sfrac12}^+ + \tilde{w}_{k+1}u_{j+k+\sfrac32}^- \Bigr). \]
+Letting the numerical flux $F_{j+\sfrac12}^-$ in \eqref{eq:semidiscrete} be defined by the Godunov-type flux
+\[
+    F_{j+\sfrac12}^- := u_{j+\sfrac12}^-(1-R_{j+\sfrac12}),
+\]
+and denoting
+\[
+    L_{\epsilon}(u)_j = \frac{1}{\Delta x} ( F_{j+\sfrac12}^- - F_{j-\sfrac12}^+ ),
+\]
+we obtain the semidiscrete nonlocal scheme:
+\begin{equation}\label{eq:nonlocal-semidiscrete}
+    \begin{cases}
+        \frac{d}{dt}u_j(t) + L_{\epsilon}(u)_j = 0 \\[2ex]
+        u_j(0)= \int_{x_{j-\sfrac12}}^{x_{j+\sfrac12}} u_0{x} \, dx
+    \end{cases}
+\end{equation}
+\begin{proposition}
+    Let $\Delta x > 0$. Then, as $\varepsilon \to 0$, the nonlocal semidiscrete scheme
+    \eqref{eq:nonlocal-semidiscrete} converges to the local semidiscrete scheme
+    \begin{equation}\label{eq:local-semidiscrete}
+        \begin{cases}
+            \displaystyle
+            \frac{d}{dt} u_j(t) + L(u)_j = 0, \\[2ex]
+            \displaystyle
+            u_j(0) = \int_{x_{j-\sfrac12}}^{x_{j+\sfrac12}} u_0(x)\, dx,
+        \end{cases}
+    \end{equation}
+    where
+    \[
+        L(u)_j := \frac{1}{\Delta x}
+        \bigl(G_{j+\sfrac12}^- - G_{j-\sfrac12}^+ \bigr) ,\qquad G_{j+\sfrac12}^- := u_{j+\sfrac12}^-(1 - u_{j+\sfrac12}^+)
+    \]
+\end{proposition}
+\subsection{Comparison of First Order and Second Order Godunov Scheme}
+\subsection{Numerical Convergence to the Nonlocal Model}
+\textcolor{red}{Rarefaction solution}
+\begin{table}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors}  & \textbf{OOC} \\
+            \hline
+            16              & $1.2667 \times 10^{-1}$  & --           \\
+            32              & $7.3044 \times 10^{-2}$  & 0.7942       \\
+            64              & $4.2832 \times 10^{-2}$  & 0.7701       \\
+            128             & $ 2.3189 \times 10^{-2}$ & 0.8853       \\
+            256             & $1.2184 \times 10^{-2}$  & 0.9285       \\
+            512             & $5.9654 \times 10^{-3}$  & 1.0303       \\
+            1024            & $ 2.6423 \times 10^{-3}$ & 1.1748       \\
+            \hline
+        \end{tabular}
+        \caption*{(a) First order Godunov scheme}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors}  & \textbf{OOC} \\
+            \hline
+            16              & $5.0110 \times 10^{-2}$  & --           \\
+            32              & $1.7309 \times 10^{-2}$  & 1.5336       \\
+            64              & $7.9544 \times 10^{-3}$  & 1.1217       \\
+            128             & $3.0467 \times 10^{-3}$  & 1.3845       \\
+            256             & $1.4243 \times 10^{-3}$  & 1.0971       \\
+            512             & $6.5964 \times 10^{-4}$  & 1.1104       \\
+            1024            & $ 2.9541 \times 10^{-4}$ & 1.1590       \\
+            \hline
+        \end{tabular}
+        \caption*{(b) Second order Godunov scheme}
+    \end{minipage}
+
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Godunov first and second order scheme in solving the nonlocal model with the Riemann initial data \eqref{eq:sloving rarefaction}.}
+    \label{tab:table 7}
+\end{table}
+\hrulefill \\
+\textcolor{red}{Discontinuous solution}
+\begin{table}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors} & \textbf{OOC} \\
+            \hline
+            16              & $1.0844 \times 10^{-1}$ & --           \\
+            32              & $4.4663 \times 10^{-2}$ & 1.2798       \\
+            64              & $3.3717 \times 10^{-2}$ & 0.4056       \\
+            128             & $1.6571 \times 10^{-2}$ & 1.0248       \\
+            256             & $8.2085 \times 10^{-3}$ & 1.0134       \\
+            512             & $3.9258 \times 10^{-3}$ & 1.0641       \\
+            1024            & $1.7225 \times 10^{-3}$ & 1.1885       \\
+            \hline
+        \end{tabular}
+        \caption*{(a) First order Godunov scheme}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors}  & \textbf{OOC} \\
+            \hline
+            16              & $7.1040 \times 10^{-2}$  & --           \\
+            32              & $ 1.8091 \times 10^{-2}$ & 1.9734       \\
+            64              & $1.5403 \times 10^{-2}$  & 0.2321       \\
+            128             & $5.7654 \times 10^{-3}$  & 1.4177       \\
+            256             & $1.9766 \times 10^{-3}$  & 1.5444       \\
+            512             & $5.6019 \times 10^{-4}$  & 1.8190       \\
+            1024            & $1.4551 \times 10^{-4}$  & 1.9448       \\
+            \hline
+        \end{tabular}
+        \caption*{(b) Second order Godunov scheme}
+    \end{minipage}
+
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Godunov first and second order scheme in solving the nonlocal model with with the Riemann initial data $u_L = 0.1 < 0.6= u_R$.}
+    \label{tab:table 8}
+\end{table}
+
+\hrulefill \\
+\qquad \textcolor{red}{Smooth solution}
+\begin{table}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors} & \textbf{OOC} \\
+            \hline
+            16              & $1.8322 \times 10^{-1}$ & --           \\
+            32              & $8.6063 \times 10^{-2}$ & 1.0901       \\
+            64              & $4.5197 \times 10^{-2}$ & 0.9291       \\
+            128             & $2.2487 \times 10^{-2}$ & 1.0071       \\
+            256             & $1.1061 \times 10^{-2}$ & 1.0237       \\
+            512             & $5.1421 \times 10^{-3}$ & 1.1050       \\
+            1024            & $2.2161 \times 10^{-3}$ & 1.2143       \\
+            \hline
+        \end{tabular}
+        \caption*{(a) First order Godunov scheme}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors}  & \textbf{OOC} \\
+            \hline
+            16              & $7.5224 \times 10^{-2}$  & --           \\
+            32              & $2.2102 \times 10^{-2}$  & 1.7670       \\
+            64              & $6.3384 \times 10^{-3} $ & 1.8020       \\
+            128             & $2.1914 \times 10^{-3}$  & 1.5322       \\
+            256             & $4.8969 \times 10^{-4}$  & 2.1619       \\
+            512             & $1.5326 \times 10^{-4}$  & 1.6759       \\
+            1024            & $3.0656 \times 10^{-5}$  & 2.3218       \\
+            \hline
+        \end{tabular}
+        \caption*{(b) Second order Godunov scheme}
+    \end{minipage}
+
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Godunov first and second order scheme in solving the nonlocal model with the smooth initial data \eqref{eq:smooth}.}
+    \label{tab:table 9}
+\end{table}
+\subsection{Numerical Convergence to the local Model}
+\textcolor{red}{Rarefaction solution}
+\begin{table}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors} & \textbf{OOC} \\
+            \hline
+            16              & $2.0744 \times 10^{-1}$ & --           \\
+            32              & $1.4154 \times 10^{-1}$ & 0.5515       \\
+            64              & $9.0816 \times 10^{-2}$ & 0.6402       \\
+            128             & $5.7350 \times 10^{-2}$ & 0.6632       \\
+            256             & $3.5334 \times 10^{-2}$ & 0.6987       \\
+            512             & $2.1299 \times 10^{-2}$ & 0.7303       \\
+            1024            & $1.2565 \times 10^{-2}$ & 0.7614       \\
+            \hline
+        \end{tabular}
+        \caption*{(a) First order Godunov scheme}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors}  & \textbf{OOC} \\
+            \hline
+            16              & $1.6004 \times 10^{-1}$  & --           \\
+            32              & $1.0047 \times 10^{-1}$  & 0.6717       \\
+            64              & $6.1193 \times 10^{-2} $ & 0.7153       \\
+            128             & $3.6977 \times 10^{-2}$  & 0.7267       \\
+            256             & $2.1940 \times 10^{-2}$  & 0.7530       \\
+            512             & $1.2857 \times 10^{-2} $ & 0.7711       \\
+            1024            & $7.4261 \times 10^{-3} $ & 0.7918       \\
+            \hline
+        \end{tabular}
+        \caption*{(b) Second order Godunov scheme}
+    \end{minipage}
+
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Godunov first and second order scheme in solving the local model with the Riemann initial data \eqref{eq:sloving rarefaction}.}
+    \label{tab:table 10}
+\end{table}
+
+\hrulefill \\
+\textcolor{red}{Discontinuous solution}
+\begin{table}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors} & \textbf{OOC} \\
+            \hline
+            16              & $1.2876 \times 10^{-1}$ & --           \\
+            32              & $8.5352 \times 10^{-2}$ & 0.5932       \\
+            64              & $4.9126 \times 10^{-2}$ & 0.7969       \\
+            128             & $2.6836 \times 10^{-2}$ & 0.8723       \\
+            256             & $1.3336 \times 10^{-2}$ & 1.0089       \\
+            512             & $6.7539 \times 10^{-3}$ & 0.9815       \\
+            1024            & $3.3509 \times 10^{-3}$ & 1.0112       \\
+            \hline
+        \end{tabular}
+        \caption*{(a) First order Godunov scheme}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors} & \textbf{OOC} \\
+            \hline
+            16              & $9.8507 \times 10^{-2}$ & --           \\
+            32              & $6.1071 \times 10^{-2}$ & 0.6897       \\
+            64              & $2.9665 \times 10^{-2}$ & 1.0417       \\
+            128             & $1.5514 \times 10^{-2}$ & 0.9352       \\
+            256             & $7.7374 \times 10^{-3}$ & 1.0036       \\
+            512             & $4.0784 \times 10^{-3}$ & 0.9238       \\
+            1024            & $1.8805 \times 10^{-3}$ & 1.1169       \\
+            \hline
+        \end{tabular}
+        \caption*{(b) Second order Godunov scheme}
+    \end{minipage}
+
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Godunov first and second order scheme in solving the local model with with the Riemann initial data $u_L = 0.1 < 0.6= u_R$.}
+    \label{tab:table 11}
+\end{table}
+
+\hrulefill \\
+\qquad \textcolor{red}{Smooth solution}
+\begin{table}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors} & \textbf{OOC} \\
+            \hline
+            16              & $3.1430 \times 10^{-1}$ & --           \\
+            32              & $1.8983 \times 10^{-1}$ & 0.7275       \\
+            64              & $1.0959 \times 10^{-1}$ & 0.7926       \\
+            128             & $6.1083 \times 10^{-2}$ & 0.8433       \\
+            256             & $3.3015 \times 10^{-2}$ & 0.8876       \\
+            512             & $1.7170 \times 10^{-2}$ & 0.9432       \\
+            1024            & $8.4186 \times 10^{-3}$ & 1.0283       \\
+            \hline
+            \hline
+        \end{tabular}
+        \caption*{(a) First order Godunov scheme}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors}  & \textbf{OOC} \\
+            \hline
+            16              & $2.3215 \times 10^{-1}$  & --           \\
+            32              & $1.3042 \times 10^{-1}$  & 0.8319       \\
+            64              & $7.2110 \times 10^{-2}$  & 0.8549       \\
+            128             & $ 3.9305 \times 10^{-2}$ & 0.8755       \\
+            256             & $2.1099 \times 10^{-2}$  & 0.8975       \\
+            512             & $1.1225 \times 10^{-2}$  & 0.9104       \\
+            1024            & $5.8947 \times 10^{-3} $ & 0.9292       \\
+            \hline
+        \end{tabular}
+        \caption*{(b) Second order Godunov scheme}
+    \end{minipage}
+
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Godunov first and second order scheme in solving the local model with the smooth initial data \eqref{eq:smooth}.}
+    \label{tab:table 12}
+\end{table}

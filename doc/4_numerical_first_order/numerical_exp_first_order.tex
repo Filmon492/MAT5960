@@ -1,0 +1,396 @@
+\section{Numerical Experiments}
+In the previous section we have devolved the Lax--Friedrichs type scheme and the Godunov type Scheme for the nonlocal model. We described in particular the complete algorithm on how to implement the Lax--Friedrichs type scheme. In this section we consider if the numerical solutions converge to the correct solution numerically.
+\subsection{Comparison of Left endpoint  and Normalized Left endpoint }
+We start by comparing the quadrature weights obtained from the left endpoint  and the normalized left endpoint .
+For the Riemann problem \eqref{eq: Riemann problem}, we choose $u_L = 0.6$ and $u_R = 0.1$ such that the problem becomes to solve
+\begin{equation}\label{eq:sloving rarefaction}
+    \begin{split}
+        u_{t} + f(u)_{x} & = 0 \\
+        u(x,0)           & =
+        \begin{cases}
+            0.6 & \text{if } x < 0 \\
+            0.1 & \text{if } x > 0
+        \end{cases}
+    \end{split}
+\end{equation}
+Since $f(u) = u(1-u)$ is a convex function, $h$ in \eqref{eq:h} equals $f$ itself. Thus, the entropy solution is given by:
+\begin{equation}\label{eq: u_L > u_R}
+    u(x,t) =
+    \begin{cases}
+        0.6               & \text{for } x \leq -0.2t,           \\
+        \dfrac{t - x}{2t} & \text{for } -0.2t \leq x \leq 0.8t, \\
+        0.1               & \text{for } x \geq 0.8t.
+    \end{cases}
+\end{equation}
+
+We plot $u$ at final time $ T = 1$ over the domain $[x_L, x_R] = [-2, 2]$ together with both the local and nonlocal numerical approximations. The linear decreasing kernel $\omega_{\epsilon}(y) = \frac{2(\epsilon-y)}{\epsilon^2}$ is used and the numerical viscosity constant $\alpha$ is set to $2$.\\
+
+\textbf{Numerical experiment 1a}: \\
+We begin by implementing the Lax--Friedrichs type scheme for $\epsilon = 0.1$ and $\Delta x = 0.02$
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{exp_1a.pdf}
+    \caption{Numerical solutions and entropy solution at T = $1$ corresponding to the left endpoint numerical quadrature weights (left) and the normalized left endpoint numerical quadrature weights (right).}
+    \label{fig:exp_1a}
+\end{figure}
+As shown in Figure~\ref{fig:exp_1a}, the choice of numerical quadrature weights does not lead to a significant difference between the numerical solutions and the entropy solution. Nevertheless, a low level of accuracy remains at the shocks, where the numerical solutions deviate noticeably from the entropy solution. We aim to achieve convergence of the numerical solutions to the entropy solution as $\Delta x$ and $\epsilon$ tend to zero simultaneously.
+
+\textbf{Numerical experiment 1b}: \\
+Next we examine the implementation for $\epsilon = 0.01$ and $\Delta x = 0.01$
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{exp_1b.pdf}
+    \caption{Numerical solutions and entropy solution at T = $1$ corresponding to the left endpoint numerical quadrature weights (left) and the normalized left endpoint numerical quadrature weights (right).}
+    \label{fig:exp_1b}
+\end{figure}
+
+As observed in Figure~\ref{fig:exp_1b}, contrary to our expectations, the left endpoint numerical quadrature weights cause the numerical solution of the nonlocal model to deviate further from both the numerical solution of the local model and the entropy solution. In contrast, the normalized left endpoint quadrature weights lead to improved accuracy and better alignment between the numerical solutions and the entropy solution.
+
+\textbf{Numerical experiment 1c}: \\
+Finally taking $\epsilon = 0.001$ and $\Delta x = 0.004$,  the numerical solution of the nonlocal model obtained using the left endpoint numerical quadrature weights completely fails. By contrast, significantly better accuracy is observed when using the normalized left endpoint numerical quadrature weights.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{exp_1c.pdf}
+    \caption{Numerical solutions and entropy solution at T = $1$ corresponding to the left endpoint numerical quadrature weights (left) and the normalized left endpoint numerical quadrature weights (right).}
+    \label{fig:exp_1c}
+\end{figure}
+Summary.\\
+The numerical experiments above demonstrate that, as $\Delta x$ and $\epsilon$ tend to zero simultaneously, while the Lax--Friedrichs type scheme based on the left endpoint quadrature weights becomes increasingly inaccurate and eventually fails to produce a meaningful numerical solution, the normalized left endpoint quadrature weights consistently maintain stability and improved alignment with the entropy solution. These results indicate that the choice of numerical quadrature weights plays a crucial role in ensuring consistency between the Lax--Friedrichs scheme and the local model. The same applies for the Godunov type scheme as well, it turns out that for the sake of consistency it's required that the numerical quadrature weights must satisfy the normalized condition $\sum_{k=0}^{m-1} w_k = 1$.
+
+\subsection{Numerical Convergence Analysis}
+Based on the numerical experiments and arguments we provided above, both the Lax--Friedrichs scheme and Godunov scheme are  consistent and stable when using the normalized left endpoint quadrature weights.
+Let us continue the numerical experiment to determine the convergence and order of convergence, and see if one scheme is more accurate than the other.
+
+Denote:
+\begin{itemize}
+    \item $U^{0}$: the reference solution of the local model.
+    \item $U^{0, \Delta x}$: the numerical solution of the local model.
+    \item $U^{\epsilon}$: the reference solution of the nonlocal model.
+    \item $U^{\epsilon, \Delta x}$: the numerical solution of the nonlocal model.
+\end{itemize}
+We are interested in presenting numerical experiments on whether:
+\begin{itemize}
+    \item for fixed $\epsilon$, $U^{\epsilon, \Delta x} \rightarrow U^{\epsilon} $ as $\Delta x \rightarrow 0$.
+    \item $U^{\epsilon, \Delta x} \rightarrow U^{0} $ as both $\Delta x \rightarrow 0$ and $\epsilon \rightarrow 0$ simultaneously.
+\end{itemize}
+
+
+Considering the computed reference and numerical solutions as piecewise constant functions on each cell of size $\Delta x$, we measure the size of the global error $e = U^{ref} - U^{num}$ using the $L^{1}$ norm:
+\begin{align*}
+    \| e \Vert_{L^{1}} = \Delta x \sum_{j=0}^{K-1} | e^j \vert.
+\end{align*}
+where $U^{ref}$ and $U^{num}$ corresponding to the the reference and numerical solution respectively. We desire to get $\| e \Vert_{L^{1}} \rightarrow 0 $ as the parameters tend to zero.
+
+\subsection{Numerical Convergence to the Nonlocal Model}
+
+We begin investigating if the devolved numerical schemes converge numerically to the solution of the nonlocal model. For fixed $\epsilon$, through numerical experiments we aim to deduce $\| U^{\epsilon} - U^{\epsilon, \Delta x}\Vert_{L^{1}}= \| e \Vert_{L^{1}} \rightarrow 0$ as $\Delta x \rightarrow 0$.
+
+Since the analytic solution is not always available, it is practical to compute the reference solution numerically on a very fine grid. Focusing on the initial data given in \eqref{eq:sloving rarefaction}, we compute the reference solution $U^{\epsilon}$ for $\Delta x = \frac{x_R-x_L}{4096} = \frac{4}{4096}$ and $\epsilon = 0.1$. Holding $\epsilon = 0.1$ fixed and letting $\Delta x \rightarrow 0$, although $\Delta x = \frac{1}{2^{4+m}}$ for $m = 0,1,2,3, 4, 5, 6$, we compute the $L^{1}$ errors and plot against the number of cells to compare the efficiency of the Godunov scheme and Lax--Friedrichs scheme. We also preset the observed order of convergence in Table~\ref{tab:table 1}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Conver_2l.pdf}
+    \caption{$L^1$ error vs. number of cells}
+    \label{fig:Conver_1}
+\end{figure}
+Figure~\ref{fig:Conver_1} indicates that the $L^{1}$-error for both Godunov and Lax--Friedrichs scheme tends to zero as the number of cells increases.
+In other words, for fixed $\epsilon$ both the schemes converge to the reference (weak) solution $U^{\epsilon}$ of the nonlocal model as $\Delta x \to 0$. We observe as well that the Godunov scheme converges faster than Lax--Friedrichs scheme. The reason leis on how the schemes are devolved, The Godunov scheme doesn't involve the numerical viscosity constant $\alpha$ at all, while the Lax--Friedrichs scheme does, which results in less efficiency.
+A natural question is: how fast do the schemes converge?
+To answer this, we study the order of convergence $r$ for both schemes.
+
+We assume that the $L^{1}$ error on a mesh of size $\Delta x_i$ can be written as
+\begin{align*}
+    E_i = C(\Delta x_i)^r,
+\end{align*}
+for some constant $C>0$.
+If we have the error at two consecutive refinement levels $(E_{i-1},E_i)$, then
+\begin{align*}
+    \frac{E_{i-1}}{E_i}
+    =\left(\frac{\Delta x_{i-1}}{\Delta x_i}\right)^{r}.
+\end{align*}
+
+Taking logarithms, we obtain the standard expression for the order of convergence $r$:
+\begin{align*}
+    r =
+    \frac{\log(E_{i-1}) - \log(E_i)}
+    {\log(\Delta x_{i-1}) - \log(\Delta x_i)}.
+\end{align*}
+The order of convergence tells us how fast does a scheme converge to the correct solution, the higher order is the faster convergence.
+\begin{table}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors}  & \textbf{OOC} \\
+            \hline
+            16              & $1.8626 \times 10^{-1}$  & --           \\
+            32              & $1.2159 \times 10^{-1}$  & 0.6154       \\
+            64              & $7.4547 \times 10^{-2}$  & 0.7058       \\
+            128             & $ 4.2751 \times 10^{-2}$ & 0.8022       \\
+            256             & $2.3350 \times 10^{-2}$  & 0.8725       \\
+            512             & $1.1829 \times 10^{-2}$  & 0.9811       \\
+            1024            & $5.3589 \times 10^{-3}$  & 1.1423       \\
+            \hline
+        \end{tabular}
+        \caption*{(a) Lax--Friedrichs scheme}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors}  & \textbf{OOC} \\
+            \hline
+            16              & $1.2667 \times 10^{-1}$  & --           \\
+            32              & $ 7.3044 \times 10^{-2}$ & 0.7942       \\
+            64              & $4.2832 \times 10^{-2}$  & 0.7701       \\
+            128             & $2.3189 \times 10^{-2}$  & 0.8853       \\
+            256             & $1.2184 \times 10^{-2}$  & 0.9285       \\
+            512             & $5.9654 \times 10^{-3}$  & 1.0303       \\
+            1024            & $ 2.6423 \times 10^{-3}$ & 1.1748       \\
+            \hline
+        \end{tabular}
+        \caption*{(b) Godunov scheme}
+    \end{minipage}
+
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Lax--Friedrichs scheme and the Godunov scheme in solving the nonlocal model with the Riemann initial data \eqref{eq:sloving rarefaction}.}
+    \label{tab:table 1}
+\end{table}
+
+Table \ref{tab:table 1} presents the quantitative results for the $L^{1}$-errors and the observed order of convergence $r$ for the
+Riemann initial data \eqref{eq:sloving rarefaction}, where $u_L > u_R$. The corresponding entropy solution is a rarefaction wave, see \eqref{eq: u_L > u_R}. We observe that the $L^{1}$-errors produced by the Godunov scheme are consistently smaller than those obtained using the Lax--Friedrichs scheme. For both schemes, the observed order of convergence is at most $1$, indicating relatively slow convergence.
+
+Let us instead choose the Riemann initial data $u_L = 0.1$ and $u_R = 0.6$ such that $u_L < u_R$, the entropy solution is given by
+\begin{align*}
+    u(x,t) =
+    \begin{cases}
+        0.1 & \text{if } x < 0.3t \\
+        0.6 & \text{if } x > 0.3t
+    \end{cases}
+\end{align*}
+which contains a single shock, and we obtain the corresponding quantitative results:
+
+\begin{table}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors} & \textbf{OOC} \\
+            \hline
+            16              & $2.0628 \times 10^{-1}$ & --           \\
+            32              & $1.0767 \times 10^{-1}$ & 0.9380       \\
+            64              & $7.1225 \times 10^{-2}$ & 0.5962       \\
+            128             & $3.8519 \times 10^{-2}$ & 0.8868       \\
+            256             & $2.0491 \times 10^{-2}$ & 0.9106       \\
+            512             & $1.0478 \times 10^{-2}$ & 0.9676       \\
+            1024            & $4.8977 \times 10^{-3}$ & 1.0972       \\
+            \hline
+        \end{tabular}
+        \caption*{(a) Lax--Friedrichs scheme}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors} & \textbf{OOC} \\
+            \hline
+            16              & $1.0844 \times 10^{-1}$ & --           \\
+            32              & $4.4663 \times 10^{-2}$ & 1.2798       \\
+            64              & $3.3717 \times 10^{-2}$ & 0.4056       \\
+            128             & $1.6571 \times 10^{-2}$ & 1.0248       \\
+            256             & $8.2085 \times 10^{-3}$ & 1.0134       \\
+            512             & $3.9258 \times 10^{-3}$ & 1.0641       \\
+            1024            & $1.7225 \times 10^{-3}$ & 1.1885       \\
+            \hline
+        \end{tabular}
+        \caption*{(b) Godunov scheme}
+    \end{minipage}
+
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Lax--Friedrichs scheme and the Godunov scheme in solving the nonlocal model with the Riemann initial data $u_L = 0.1 < 0.6= u_R$}
+    \label{tab:table 2}
+\end{table}
+
+The observation in Table \ref{tab:table 2} indicates that both the numerical schemes solve effectively solutions with shocks than rarefactions, \textcolor{red}{why?}, in the sense that the $L^{1}$-errors and the order of convergence (in particular for the Godunov scheme ) are improved.
+If we repeat the above experiments, but with the smooth initial data:
+\begin{equation}\label{eq:smooth}
+    u(x,0) = 0.5 + 0.3\cos{\frac{\pi x}{2}}
+\end{equation}
+we obtain
+\begin{table}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors}  & \textbf{OOC} \\
+            \hline
+            16              & $3.3092 \times 10^{-1}$  & --           \\
+            32              & $1.8065 \times 10^{-1} $ & 0.8733       \\
+            64              & $9.9861 \times 10^{-2} $ & 0.8552       \\
+            128             & $5.2189 \times 10^{-2}$  & 0.9362       \\
+            256             & $2.6458 \times 10^{-2}$  & 0.9801       \\
+            512             & $1.2647 \times 10^{-2}$  & 1.0649       \\
+            1024            & $ 5.5133 \times 10^{-3}$ & 1.1978       \\
+            \hline
+        \end{tabular}
+        \caption*{(a) Lax--Friedrichs scheme}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors} & \textbf{OOC} \\
+            \hline
+            16              & $1.8322 \times 10^{-1}$ & --           \\
+            32              & $8.6063 \times 10^{-2}$ & 1.0901       \\
+            64              & $4.5197 \times 10^{-2}$ & 0.9291       \\
+            128             & $2.2487 \times 10^{-2}$ & 1.0071       \\
+            256             & $1.1061 \times 10^{-2}$ & 1.0237       \\
+            512             & $5.1421 \times 10^{-3}$ & 1.1050       \\
+            1024            & $2.2161 \times 10^{-3}$ & 1.2143       \\
+            \hline
+        \end{tabular}
+        \caption*{(b) Godunov scheme}
+    \end{minipage}
+
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Lax--Friedrichs scheme and the Godunov scheme in solving the nonlocal model with the smooth initial data \eqref{eq:smooth}.}
+    \label{tab:table 3}
+\end{table}
+We observe in Table \ref{tab:table 3} that the $L^{1}$-errors are significantly improved compared to the $L^{1}$-errors for the Riemann initial data. But we still observe that both the schemes are first order accurate. This behavior is expected, since both the Lax--Friedrichs scheme and Godunov scheme are based on piecewise constant approximations and are therefore first order accurate.
+
+\textbf{Summary}.\\
+The quantitative results above indicate that for fixed $\epsilon$, $U^{\epsilon, \Delta x} \rightarrow U^{\epsilon} $ as $\Delta x \rightarrow 0$. In addition, the Godunov scheme is more efficient than the Lax--Friedrichs scheme. Now it is time to consider the quantitative results as both the parameters $\epsilon$ and $\Delta x$ tend to zero.
+\subsection{Numerical Convergence to the Local Model}
+\textcolor{red}{Rarefaction solution}
+\begin{table}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors}  & \textbf{OOC} \\
+            \hline
+            16              & $2.5205 \times 10^{-1}$  & --           \\
+            32              & $1.8141 \times 10^{-1}$  & 0.4744       \\
+            64              & $1.2020 \times 10^{-1}$  & 0.5938       \\
+            128             & $7.7851 \times 10^{-2}$  & 0.6267       \\
+            256             & $4.9129 \times 10^{-2}$  & 0.6641       \\
+            512             & $3.0257 \times 10^{-2}$  & 0.6993       \\
+            1024            & $1.8184 \times 10^{-2} $ & 0.7346       \\
+            \hline
+        \end{tabular}
+        \caption*{(a) Lax--Friedrichs scheme}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors} & \textbf{OOC} \\
+            \hline
+            16              & $2.0744 \times 10^{-1}$ & --           \\
+            32              & $1.4154 \times 10^{-1}$ & 0.5515       \\
+            64              & $9.0816 \times 10^{-2}$ & 0.6402       \\
+            128             & $5.7350 \times 10^{-2}$ & 0.6632       \\
+            256             & $3.5334 \times 10^{-2}$ & 0.6987       \\
+            512             & $2.1299 \times 10^{-2}$ & 0.7303       \\
+            1024            & $1.2565 \times 10^{-2}$ & 0.7614       \\
+            \hline
+        \end{tabular}
+        \caption*{(b) Godunov scheme}
+    \end{minipage}
+
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Lax--Friedrichs scheme and the Godunov scheme in solving the local model with the Riemann initial data \eqref{eq:sloving rarefaction}.}
+    \label{tab:table 4}
+\end{table}
+\textcolor{red}{Discontinuous solution}
+\begin{table}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors} & \textbf{OOC} \\
+            \hline
+            16              & $1.2876 \times 10^{-1}$ & --           \\
+            32              & $8.5352 \times 10^{-2}$ & 0.5932       \\
+            64              & $4.9126 \times 10^{-2}$ & 0.7969       \\
+            128             & $2.6836 \times 10^{-2}$ & 0.8723       \\
+            256             & $1.3336 \times 10^{-2}$ & 1.0089       \\
+            512             & $6.7539 \times 10^{-3}$ & 0.9815       \\
+            1024            & $3.3509 \times 10^{-3}$ & 1.0112       \\
+            \hline
+        \end{tabular}
+        \caption*{(a) Lax--Friedrichs scheme}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors} & \textbf{OOC} \\
+            \hline
+            16              & $1.2876 \times 10^{-1}$ & --           \\
+            32              & $8.5331 \times 10^{-2}$ & 0.5935       \\
+            64              & $4.9126 \times 10^{-2}$ & 0.7966       \\
+            128             & $2.5173 \times 10^{-2}$ & 0.9646       \\
+            256             & $1.2981 \times 10^{-2}$ & 0.9555       \\
+            512             & $5.3551 \times 10^{-3}$ & 1.2774       \\
+            1024            & $2.3655 \times 10^{-3}$ & 1.1787       \\
+            \hline
+        \end{tabular}
+        \caption*{(b) Godunov scheme}
+    \end{minipage}
+
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Lax--Friedrichs scheme and the Godunov scheme in solving the nonlocal model with the Riemann initial data $u_L = 0.1 < 0.6= u_R$}
+    \label{tab:table 5}
+\end{table}
+\qquad \textcolor{red}{Smooth solution}
+
+\begin{table}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors}  & \textbf{OOC} \\
+            \hline
+            16              & $4.4054 \times 10^{-1}$  & --           \\
+            32              & $2.7531 \times 10^{-1}$  & 0.6782       \\
+            64              & $1.6123 \times 10^{-1} $ & 0.7719       \\
+            128             & $9.0594 \times 10^{-2}$  & 0.8317       \\
+            256             & $4.9131 \times 10^{-2}$  & 0.8828       \\
+            512             & $2.5444 \times 10^{-2}$  & 0.9493       \\
+            1024            & $1.2219 \times 10^{-2}$  & 1.0581       \\
+            \hline
+        \end{tabular}
+        \caption*{(a) Lax--Friedrichs scheme}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \begin{tabular}{ |p{1.5cm}||p{2cm}| |p{1.5cm}| }
+            \hline
+            \textbf{Cells } & $L^{1}$-\textbf{errors} & \textbf{OOC} \\
+            \hline
+            16              & $3.1430 \times 10^{-1}$ & --           \\
+            32              & $1.8983 \times 10^{-1}$ & 0.7275       \\
+            64              & $1.0959 \times 10^{-1}$ & 0.7926       \\
+            128             & $6.1083 \times 10^{-2}$ & 0.8433       \\
+            256             & $3.3015 \times 10^{-2}$ & 0.8876       \\
+            512             & $1.7170 \times 10^{-2}$ & 0.9432       \\
+            1024            & $8.4186 \times 10^{-3}$ & 1.0283       \\
+            \hline
+        \end{tabular}
+        \caption*{(b) Godunov scheme}
+    \end{minipage}
+
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Lax--Friedrichs scheme and the Godunov scheme in solving the nonlocal model with smooth initial data \eqref{eq:smooth}.}
+    \label{tab:table 6}
+\end{table}
