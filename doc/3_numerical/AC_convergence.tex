@@ -1,193 +1,84 @@
 %\part{First-order Numerical Methods}
-\chapter{Asymptotic Compatibility (AC) of the Numerical Methods}
-In this chapter, we demonstrate the convergence analysis of the numerical solution $\mathcal{U}^{\epsilon, \Delta x}$ to the unique entropy solution of the local model \eqref{eq:local model} as both $\Delta x \rightarrow 0$ and $\epsilon \rightarrow 0$ simultaneously.
-\section{Convergence Properties of Numerical Schemes for the Local Model}
-Before studying the convergence of numerical methods for the nonlocal model to local model, it is significant to study the convergence properties of numerical methods for the local model. Here is a thoughtful question to ask: if we have convergence criteria (or properties) for the numerical methods of the local model, do the numerical methods of the nonlocal model satisfy those criteria?
-\subsection{Conservative Schemes}
-The first property we require of the numerical schemes for the local model is conservation: no quantity should be created or destroyed over time. The entropy solution of the local model is conservative, in the sense that the integral of the solution is preserved over time. Therefore, we require the corresponding discrete quantity to be preserved as well.
-\begin{definition}[Conservative scheme]
-    The three-point update function $H$ given in \eqref{eq:three_point_H} is conservative if satisfies
-    \[ \sum_{j}^{} u_{j}^{n+1} = \sum_{j}^{} u_{j}^{n} \quad \text{ for all } n .\]
-\end{definition}
-\subsection{Consistent Schemes}
-The numerical schemes must be consistent with the local model \eqref{eq:local model}, i.e, they must approximate the desired PDE.
-\begin{definition}[Consistency]
-    The three-point update function $H$ with corresponding flux $F$ is consistent if
-    \[ F(w,\cdots, w) = f(w) \quad \text{for all } w \in \mathbb{R}.\]
-\end{definition}
-\subsection{Monotone Schemes}
-\begin{definition}[Monotonicity]
-    The three-point update function $H$ is non-decreasing in each of its arguments.
-\end{definition}
-\subsection{$L^{\infty}$ Bounds}
-\subsection{Entropy Inequalities and $L^{p}$ Bounds}
-\subsection{TV Bounds}
-\subsection{Time Continuity}
-\subsection{Helly's Theorem}
-\subsection{Ascoli's Theorem}
-\subsection{Lax--Wendroff Theorem}
-\section{Convergence of Numerical Schemes for the Nonlocal Model to Local model}
-For the local model, if we have a conservative, consistent and monotone scheme, then the scheme converges to the correct solution. However, for the nonlocal model, it is difficult to obtain monotone scheme. To see this, we consider the update function $H$ given in \eqref{eq:generic_H_N}. In \textcolor{red}{Citation is needed here}, they have proved the Asymptotically compatibility theorem for general fux $g$. To make the proof easier to follow up, we restrict ourselves to the Godunov flux $g$, and provide the proof in this chapter. We start making the necessary assumptions on the numerical quadrature weights $w_k$, initial data $\rho_0$, Godunov numerical flux $g$ and CFL $\lambda = \frac{\Delta t}{\Delta x}$
-\begin{assumption}
+
+\chapter{Asymptotic Compatibility (AC) of the First-Order Numerical Methods}\label{chap:chapter_4}
+A numerical scheme of the form \eqref{eq:generic_H_N} is called asymptotically compatible if its numerical solution converges to the unique entropy solution of the local model \eqref{eq:local model} as both \(\Delta x \to 0\) and \(\epsilon \to 0\) simultaneously; see \cite{tianAsymptoticallyCompatibleSchemes2014}. In this chapter, we present the stability analysis of the numerical method, which provides the main ingredients needed to establish asymptotic compatibility.
+
+\section{Stability Analysis of the Numerical Methods}
+We consider the stability analysis of the numerical method given by \eqref{eq:generic_H_N}. For the local model, if we have a conservative, consistent and monotone scheme, then the scheme converges to the correct solution; see \cite[Chapter~4]{Ulrik2015}. However, for the nonlocal model it is difficult to obtain a monotone scheme. Nevertheless, under certain assumptions on the initial data, Huang and Du; see \cite{huangAsymptoticCompatibilityClass2024}, have deduced a monotone numerical scheme. Further, they have proved the asymptotic compatibility of a class of finite-volume schemes for the nonlocal traffic-flow model. To make the analysis easier to follow, we restrict ourselves to the Godunov-type flux and present the corresponding stability analysis in this chapter.
+
+We start making the necessary assumptions on the nonlocal kernel $\omega^{\epsilon}(y)$, initial data $\rho_0$, numerical quadrature weights $w_k$ and CFL condition $\lambda$.
+\begin{assumption}\label{assm:assm_1}
     \leavevmode
-    The nonlocal kernel is given by
+    The nonlocal kernel $\omega^{\epsilon}: \mathbb{R} \rightarrow \mathbb{R}$ satisfying $\omega^{\epsilon} \geq 0$ and $\int_{0}^{\epsilon} \omega^{\epsilon}(y)  \, dy = 1$ is given by
     \[
-        w_\epsilon(y) = \frac{1}{\epsilon} w\!\left(\frac{y}{\epsilon}\right),
-        \qquad y \in [0,\epsilon],
+        \omega^{\epsilon}(y) =
+        \begin{cases}
+            \frac{1}{\epsilon} \omega\!\left(\frac{y}{\epsilon}\right), & y \in [0,\epsilon] \\
+            0                                                           & \text{otherwise}
+        \end{cases}
     \]
-    where $w$ is a $C^1$ nonnegative, strictly decreasing probability density on $[0,1]$, satisfying
+    where $\omega \in C_{c}^1([0,1])$ is a nonnegative, strictly decreasing probability density satisfying
     \[
-        \int_0^1 w(y)\,dy = 1.
+        \int_0^1 \omega(z)\,dz = 1.
     \]
 \end{assumption}
-\begin{assumption}
-    The initial data $\rho_0$ belongs to $L^\infty(\mathbb{R})$, has bounded total variation, and satisfies the following:
-    \begin{enumerate}
-        \item
-              \[
-                  0 \le \rho_0(x) \le 1
-                  \qquad \text{for all } x \in \mathbb{R}.
-              \]
-        \item One-sided Lipschitz condition
-              \[
-                  \rho_0(x) \ge \rho_{\min} > 0
-                  \qquad \text{for all } x \in \mathbb{R},  \qquad  -\frac{\rho_0(y)-\rho_0(x)}{y-x} \le L
-                  \qquad \text{for all } x \ne y \in \mathbb{R},
-              \]
-              for some constants $\rho_{\min}>0$ and $L>0$.
-    \end{enumerate}
+\begin{assumption}\label{assm:assm_2}
+    The initial data $\rho_0$ belongs to $L^\infty(\mathbb{R})$, has bounded total variation, and satisfies
+    \[
+        0\leq \rho_{\min} \leq \rho_0(x) \leq \rho_{\max} \le 1,
+        \qquad \text{for all } x \in \mathbb{R}.
+    \]
 \end{assumption}
 
-\begin{assumption}
+\begin{assumption}\label{assm:assm_3}
     The numerical quadrature weights $\{w_k\}_{0 \le k \le m-1}$ satisfy
-    \[
-        \omega_{\epsilon}(k\Delta x) \Delta x \ge w_k \ge \omega_{\epsilon}((k+1)\Delta x) \Delta x
-    \]
-    and
-    \[
-        w_k - w_{k+1} \ge c\,m^{-2},
-    \]
-    for some constant $c>0$ depending only on the kernel $w$.
-    Moreover, the weights satisfy the normalization condition
-    \[
-        \sum_{k=0}^{m-1} w_k = 1.
-    \]
-\end{assumption}
-\begin{assumption}
-    \leavevmode
-    \begin{enumerate}
-        \item The numerical flux function $g$ is quadratic.
-
-        \item When $\rho_L=\rho_R$ and $q_L=q_R$, one has
-              \[
-                  g(\rho_L,\rho_L,q_L,q_L) = \rho_L(1-q_L).
-              \]
-
-        \item Denote by $\gamma_{ij}$, $1 \le i,j \le 4$, the second-order partial derivatives of $g$. Then
-              \[
-                  \gamma_{11}=\gamma_{12}=\gamma_{22}=0,
-                  \qquad
-                  \gamma_{33}=\gamma_{34}=\gamma_{44}=0,
-              \]
-              and
-              \[
-                  \gamma_{13},\gamma_{23},\gamma_{14},\gamma_{24} \le 0,
-                  \qquad
-                  \gamma_{13}+\gamma_{23}+\gamma_{14}+\gamma_{24} = -1.
-              \]
-    \end{enumerate}
-\end{assumption}
-\begin{assumption}
-    Denote by $\theta^{(i)}$, $1 \le i \le 4$, the first-order partial derivatives of $g$
-    with respect to the four arguments $\rho_L,\rho_R,q_L,q_R$. For any
-    \[
-        0 \le \rho_L,\rho_R,q_L,q_R \le 1,
-    \]
-    we assume the following:
     \begin{enumerate}
         \item
-              \begin{align*}
-                   & \theta^{(1)}(q_L,q_R) \ge 0,
-                  \qquad
-                  \theta^{(2)}(q_L,q_R) \le 0,          \\
-                   & \theta^{(3)}(\rho_L,\rho_R) \le 0,
-                  \qquad
-                  \theta^{(4)}(\rho_L,\rho_R) \le 0.
-              \end{align*}
-
-        \item
-              \begin{align*}
-                   & \theta^{(1)}(q_L,q_R)+\theta^{(3)}(\rho_L,\rho_R)
-                  +2(\gamma_{13}+\gamma_{23}) \ge 0,                         \\
-                   & \theta^{(2)}(q_L,q_R)-2(\gamma_{23}+\gamma_{24}) \le 0.
-              \end{align*}
-
+              \[
+                  \omega^{\epsilon}(k\Delta x) \Delta x \ge w_k \ge \omega^{\epsilon}((k+1)\Delta x) \Delta x \qquad \text{for } k= 0,1, \dots, m-1
+              \]
         \item
               \[
-                  \theta^{(3)}(\rho_L,\rho_R)+\theta^{(4)}(\rho_L,\rho_R)
-                  \le -\min\{\rho_L,\rho_R\}.
+                  w_{k-1} - w_{k} \ge c\,m^{-2}, \qquad \text{for } k= 1,2, \dots, m,
+              \]
+              with the convention $w_m=0$, and for some constant $c>0$ depending only on the kernel $\omega$.
+        \item normalization condition
+              \[
+                  \sum_{k=0}^{m-1} w_k = 1.
               \]
     \end{enumerate}
 \end{assumption}
 
-\begin{assumption}
-    With the notation $\theta^{(i)}$, $1 \le i \le 4$, from the previous assumption, $\lambda$ satisfies
-    \[
-        \lambda \sum_{i=1}^4 \|\theta^{(i)}\|_{L^{\infty}} < 1.
-    \]
+\begin{assumption}\label{assm:assm_4}
+    The CFL condition $\lambda$  satisfies
+    \[ \lambda < \frac{1}{2}.\]
 \end{assumption}
-Let us now check if the Godunov flux $g$ satisfy the Assumptions 4.2.4 and 4.2.5. We begin by computing the first order and second order partial derivatives of $g$ with respect to the four arguments $\rho_L,\rho_R,q_L,q_R$.
-The Godunov numerical flux is given by
-\[g(\rho_L,\rho_R,q_L,q_R)= \rho_L (1-q_R),\] and we compute the partial derivatives as follows:
 
-\begin{align*}
-    \theta^{(1)}(q_L,q_R) & := \frac{\partial g}{\partial \rho_L}, & \theta^{(2)}(q_L,q_R) & := \frac{\partial g}{\partial \rho_R} \\
-                          & = 1-q_R                                &                       & = 0
-\end{align*}
-\begin{align*}
-    \theta^{(3)}(\rho_L,\rho_R) & := \frac{\partial g}{\partial q_L}, & \theta^{(4)}(\rho_L,\rho_R) & := \frac{\partial g}{\partial q_R} \\
-                                & = 0                                 &                             & = -\rho_L.
-\end{align*}
-Since $\theta^{(2)}$ and $\theta^{(3)}$ are zero, and  $\theta^{(1)}$ depends only on $q_R$ while $\theta^{(4)}$ on $\rho_L$, the only nonzero second order partial derivatives are the following
-\begin{align*}
-    \gamma_{14} & = \frac{\partial^2 g}{ \partial q_R \partial \rho_L}, & \gamma_{41} & = \frac{\partial^2 g}{\partial \rho_L \partial q_R} \\
-                & = -1                                                  &             & = -1.
-\end{align*}
-Checking Assumptions 4.2.4 and 4.2.5 is straightforward now, and the Godunov numerical flux satisfies both Assumptions. let us now see what does the CFL $\lambda$ satisfy explicitly, provided that $\theta^{(i)}$ are the computed first order partial derivatives that corresponding to the Godunov numerical flux $g$. Given
-\[
-    0 \le \rho_L,\rho_R,q_L,q_R \le 1,
-\] as Assumption 4.2.4, we obtain
-\begin{equation}\label{eq:lambda_God}
+%-------------------------------------------------
+%-------------------------------------------------
+
+\subsection{Maximum Principle}\label{subsec:mono}
+
+It is easy to establish the maximum principle if we have monotone numerical schemes. So, we check first if the update function $\mathcal{H}$ with corresponding Godunov numerical flux $g$ is monotone. To do that, suppose Assumptions~\ref{assm:assm_1}--\ref{assm:assm_4} holds. In addition, suppose that
+\[0 \leq \rho_{\min} \leq  \rho_{j+k}^{n} \leq \rho_{\max} \leq 1 \qquad \text{ for } k = -1, 0,1,\dots,m.\]
+Then we have
+\begin{equation}\label{eq:q_j_equality}
     \begin{split}
-        \lambda \sum_{i=1}^4 \|\theta^{(i)}\|_{L^{\infty}} < 1                                                                                              \\
-        \lambda \Bigl(\|\theta^{(1)}\|_{L^{\infty}}+ \|\theta^{(2)}\|_{L^{\infty}} + \|\theta^{(3)}\|_{L^{\infty}} + \|\theta^{(4)}\|_{L^{\infty}}\Bigr)< 1 \\
-        \lambda \Bigl(\|\theta^{(1)}\|_{L^{\infty}}+ 0 + 0 + \|\theta^{(4)}\|_{L^{\infty}}\Bigr)< 1                                                         \\
-        \lambda \Bigl(\|\theta^{(1)}\|_{L^{\infty}}+ \|\theta^{(4)}\|_{L^{\infty}}\Bigr)< 1                                                                 \\
-        \lambda \Bigl( \sup\limits_{q_R \in [0,1]}| 1-q_R\vert  +  \sup\limits_{\rho_L \in [0,1]}|-\rho_L\vert \Bigr)< 1                                    \\
-        2\lambda < 1
+        q_{j}^{n}  = \sum_{k=0}^{m-1} w_k \rho_{j+k}^{n} \leq \sum_{k=0}^{m-1} w_k \rho_{\max}= \rho_{\max},
     \end{split}
 \end{equation}
-So, for the Godunov numerical flux $g$, the CFL condition is given by
-\[ \lambda < \frac{1}{2}.\]
-\subsection{Maximum Principle}
-It is easy to establish the maximum principle if we have monotone numerical schemes. let us now check if the update function $\mathcal{H}$ with corresponding Godunov numerical flux $g$ is monotone. To do that, suppose that
-\[0 \leq \rho_{\min} \leq  \rho_{j+k}^{n} \leq \rho_{\max} \leq 1 \qquad \text{ for } k = -1, 0,1,\cdots,m,\]
-then we have also
-\begin{align*}
-    q_{j}^{n} & = \sum_{k=0}^{m-1} w_k \rho_{j+k}^{n}              \\
-              & \leq \sum_{k=0}^{m-1} w_k \rho_{\max}              \\
-              & =  \rho_{\max} \sum_{k=0}^{m-1} w_k = \rho_{\max},
-\end{align*}
-where we have used $\sum_{k=0}^{m-1} w_k = 1$ by the normalization condition. By similar argument $q_{j}^{n}$ is lower bonded by $\rho_{\min}$. Consequently, we have
+where we have used $\sum_{k=0}^{m-1} w_k = 1$ by the normalization condition. By a similar argument $q_{j}^{n}$ is lower bounded by $\rho_{\min}$. Consequently, we have
 \begin{equation}\label{eq:q_bound}
-    0 \leq q_{j}^{n} \leq 1 \text{ for all } j\in \mathbb{Z}, n\geq 0
+    0 \leq q_{j}^{n} \leq 1 \text{ for all } j\in \mathbb{Z}, n \in \mathbb{N}.
 \end{equation}
 
-We check now whether $\mathcal{H}$ is nondecreasing with respect to each of its arguments. The update function $\mathcal{H}$ with respect to the Godunov numerical flux
-\[g(\rho_L,\rho_R,q_L,q_R)= \rho_L (1-q_R),\]
+The update function $\mathcal{H}$ with respect to the Godunov numerical flux
+\[
+    g(\rho_L,\rho_R,q_L,q_R)= \rho_L (1-q_R)
+\]
 is given by
 \begin{equation}\label{eq:mono_H}
-    \mathcal{H}( \rho_{j-1}^n, \rho_{j}^n,  \rho_{j+1}^n,\cdots,  \rho_{j+m}^n)
+    \mathcal{H}( \rho_{j-1}^n, \rho_{j}^n,  \rho_{j+1}^n,\dots,  \rho_{j+m}^n)
     =
     \rho_j^n
     +
@@ -198,18 +89,16 @@ is given by
         \rho_j^n(1-q_{j+1}^n)
         \right].
 \end{equation}
-Taking the partial derivatives gives us
+Taking the partial derivatives gives
 \begin{align*}
-    \frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} & =\lambda(1-q_j^n)                                                                           \\
-    \frac{\partial \mathcal{H}}{\partial \rho_j^n}     & =1-\lambda\left[(1-q_{j+1}^n)+w_0\rho_{j-1}^n\right]                                        \\
-    \frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n} & = \lambda\left( w_{k-1}\rho_j^n -w_k\rho_{j-1}^n\right) \qquad \text{for } k= 1,2,\cdots,m,
+    \frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} & =\lambda(1-q_j^n)                                                                                                              \\
+    \frac{\partial \mathcal{H}}{\partial \rho_j^n}     & =1-\lambda\left[(1-q_{j+1}^n)+w_0\rho_{j-1}^n\right]                                                                           \\
+    \frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n} & = \lambda\left( w_{k-1}\rho_j^n -w_k\rho_{j-1}^n\right) \qquad \text{for } k= 1,2,\dots,m, \text{with the convention $w_m=0$}.
 \end{align*}
-where we make the convention $w_m=0$.
-
 $\mathcal{H}$ is nondecreasing with respect to $\rho_{j-1}^n$, because
 \begin{equation}\label{eq:First_argument}
     \begin{split}
-        \frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} & =\lambda(1-q_j^n) \geq 0 \qquad \text{due to } \eqref{eq:q_bound}.
+        \frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} & =\lambda(1-q_j^n) \geq 0 \qquad \text{ since $0 \leq q_{j}^{n} \leq 1$ due to } \eqref{eq:q_bound}.
     \end{split}
 \end{equation}
 Next, we check if $\mathcal{H}$ is nondecreasing with respect to $\rho_{j}^n$. We desire to have that
@@ -218,318 +107,269 @@ Next, we check if $\mathcal{H}$ is nondecreasing with respect to $\rho_{j}^n$. W
     =
     1-\lambda\left[(1-q_{j+1}^n)+w_0\rho_{j-1}^n\right] \geq 0.
 \]
-For this to happen, we must have
+Since $\lambda < \frac{1}{2}$ by \ref{assm:assm_4}, it suffices to show that
 \[
-    0 \leq \lambda\left[(1-q_{j+1}^n)+w_0\rho_{j-1}^n\right]\leq 1
+    (1-q_{j+1}^n)+w_0\rho_{j-1}^n\leq 2.
 \]
-Clearly, we have $\lambda\left[(1-q_{j+1}^n)+w_0\rho_{j-1}^n\right] \geq 0$, so it remains to show that
-\[\lambda\left[(1-q_{j+1}^n)+w_0\rho_{j-1}^n\right] \leq 1\].
-
-We remember that the first order partial derivatives of $g$ are
+So
 \begin{align*}
-    \theta^{(1)}(q_L,q_R) & = \frac{\partial g}{\partial \rho_L}, & \theta^{(2)}(q_L,q_R) & = \frac{\partial g}{\partial \rho_R} \\
-                          & = 1-q_R                               &                       & = 0
+    (1-q_{j+1}^n)+w_0\rho_{j-1}^n & \leq (1-q_{j+1}^n)+\rho_{j-1}^n   \qquad \text{ since $0\leq w_0 \leq 1$ and $\rho_{j-1}^n \geq 0$ } \\
+                                  & \leq 1+1 = 2 \qquad \text{ since $0\leq q_{j+1}^n \leq 1$ and $0 \leq \rho_{j-1}^n \leq 1$ }
 \end{align*}
-\begin{align*}
-    \theta^{(3)}(\rho_L,\rho_R) & = \frac{\partial g}{\partial q_L}, & \theta^{(4)}(\rho_L,\rho_R) & = \frac{\partial g}{\partial q_R} \\
-                                & = 0                                &                             & = -\rho_L.
-\end{align*}
-That means
-\begin{align*}
-    \lambda\left[(1-q_{j+1}^n)+w_0\rho_{j-1}^n\right] & \leq \lambda\left[(1-q_{j+1}^n)+\rho_{j-1}^n\right]               \qquad \text{ since $0\leq w_0 \leq 1$ and $\rho_{j-1}^n \geq 0$ } \\
-                                                      & = \lambda \Bigl(\theta^{(1)}(q_{j}^{n}, q_{j+1}^{n}) - \theta^{(4)}(\rho_{j-1}^{n},\rho_{j}^{n})\Bigr)                               \\
-                                                      & \leq \lambda \Bigl(\|\theta^{(1)}\|_{L^{\infty}}+ \|\theta^{(4)}\|_{L^{\infty}}\Bigr)                                                \\
-                                                      & = 2\lambda                                                                                                                           \\
-                                                      & < 1 \qquad \text{ By Assumption 4.2.4}
-\end{align*}
-It follows that
-\begin{equation}\label{eq:Second_argument}
-    \frac{\partial \mathcal{H}}{\partial \rho_j^n}
-    =
-    1-\lambda\left[(1-q_{j+1}^n)+w_0\rho_{j-1}^n\right] \geq 0.
-\end{equation}
 Therefore, $\mathcal{H}$ is nondecreasing with respect to $\rho_{j}^n$.
 
-We consider now for $k= 1,2,\cdots, m-1$.
+For $k= m$, the convention $w_m=0$ gives
 \begin{align*}
-    \frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n} & = \lambda\left( w_{k-1}\rho_j^n -w_k\rho_{j-1}^n\right)                      \\
-                                                       & =\lambda \Bigl[(w_{k-1}- w_k) \rho_j^n + w_k(\rho_j^n - \rho_{j-1}^n )\Bigr]
+    \frac{\partial \mathcal{H}}{\partial \rho_{j+m}^n} & = \lambda\left( w_{k-1}\rho_j^n -w_k\rho_{j-1}^n\right)                     \\
+                                                       & =\lambda (w_{m-1}\rho_j^n)                                                  \\
+                                                       & \geq \lambda cm^{-2} \rho_j^n \qquad \text{by Assumption~\ref{assm:assm_3}} \\
+                                                       & \geq 0
 \end{align*}
-By Assumption 4.2.3
-\[(w_{k-1}- w_k) \geq cm^{-2} \geq 0. \] Hence the first term inside the brackets is nonnegative. However, the second term inside the brackets may be negative, because Assumptions 4.2.1--4.2.6 alone do not imply that $\rho_{j-1}^n >\rho_j^n$. Consequently, we may have $\frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n} < 0$.
-
-For $k= m$, the convection $w_m=0$ gives
+Hence, $\mathcal{H}$ is nondecreasing with respect to $\rho_{j+m}^n$
+We consider now for $k= 1,2,\dots, m-1$. The derivatives are given by
 \begin{align*}
-    \frac{\partial \mathcal{H}}{\partial \rho_{j+m}^n} & = \lambda\left( w_{k-1}\rho_j^n -w_k\rho_{j-1}^n\right) \\
-                                                       & =\lambda (w_{m-1}\rho_j^n) \geq 0
+    \frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n} & = \lambda\left( w_{k-1}\rho_j^n -w_k\rho_{j-1}^n\right)                       \\
+                                                       & =\lambda \Bigl[(w_{k-1}- w_k) \rho_j^n + w_k(\rho_j^n - \rho_{j-1}^n )\Bigr].
 \end{align*}
-Thus, we can not conclude $\mathcal{H}$ is nondecreasing in each of its arguments. Therefore, one can not prove the maximum principle by showing $\mathcal{H}$ is monotone. Instead, we prove the maximum principle by applying the mean value theorem.
+Both the terms $\rho_j^n$ and $w_k$ are nonnegative, and by Assumption~\ref{assm:assm_3} we have
+\[
+    (w_{k-1}- w_k) \geq cm^{-2} > 0.
+\]
+We assume first that $(\rho_j^n - \rho_{j-1}^n ) \geq 0$, then the term
+\[
+    \lambda \Bigl[(w_{k-1}- w_k) \rho_j^n + w_k(\rho_j^n - \rho_{j-1}^n )\Bigr]
+\]
+is nonnegative.
 
-\begin{theorem}[Maximum principle]
-    Suppose Assumptions  4.2.1--4.2.6 holds. In addition, the following condition is satisfied
-    \[ 0 < \epsilon \leq \epsilon_0:= \frac{c\rho_{\min}}{2Lw(0)}\]
-    where the constants $\rho_{\min}$ and $L$ are as in Assumption 4.2.2, while the constant $c$ is as in Assumption 4.2.3.  Let $\{\rho_j^n\}_{j \in \mathbb{Z}}^{ n \in \mathbb{N}}$ be the numerical solution computed by \eqref{eq:mono_H}. Then the following uniform bound hold
+We assume now that $(\rho_j^n - \rho_{j-1}^n ) < 0$, then the first term
+\[
+    (w_{k-1}- w_k) \rho_j^n
+\]
+inside the brackets is still nonnegative. However, the second term
+\[
+    w_k(\rho_j^n - \rho_{j-1}^n )
+\]
+inside the brackets is negative. Consequently, we may have $\frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n} < 0$.
+
+
+Thus, $\mathcal{H}$ is nondecreasing only with respect to $\rho_{j-1}^n$, $\rho_{j}^n$ and  $\rho_{j+m}^n$. So, we can not conclude that $\mathcal{H}$ is nondecreasing in each of its arguments based only on Assumptions~\ref{assm:assm_1}--\ref{assm:assm_4}. Therefore, one can not prove the maximum principle by showing $\mathcal{H}$ is monotone. Instead, we prove the maximum principle by applying the mean value theorem.
+
+
+\begin{theorem}[Maximum principle]\label{the:theorem_1}
+    Suppose Assumptions \ref{assm:assm_1}--\ref{assm:assm_4} holds. Let $\{\rho_j^n\}_{j \in \mathbb{Z}}^{ n \in \mathbb{N}}$ be the numerical solution computed by \eqref{eq:mono_H}. Then, the  uniform bound holds:
     \[\rho_{\min} \leq \rho_{j}^{n} \leq  \rho_{\max}  \qquad \text{for all } j \in \mathbb{Z},  n \in \mathbb{N} \]
     where
     \[
-        \rho_{\min} := \inf\limits_{x\in \mathbb{R}} \rho_0 > 0 \quad \text{and }  \rho_{\max}:= \sup\limits_{x\in \mathbb{R}} \rho_0 \leq 1
+        \rho_{\min} := \inf\limits_{x\in \mathbb{R}} \rho_0 \geq 0  \quad \text{and }  \rho_{\max}:= \sup\limits_{x\in \mathbb{R}} \rho_0 \leq 1.
     \]
 \end{theorem}
 
-We will prove the above theorem by induction, but first we prove the following Lemma.
 
-\begin{lemma}
-    Suppose all conditions in Theorem 4.2.7 are given, and that
-    \[0 \leq \rho_{\min} \leq  \rho_{j+k}^{n} \leq \rho_{\max} \leq 1 \qquad \text{ for } k = -1, 0,1,\cdots,m.\]
-    Then we have
-    \[ \rho_{\min} \leq \mathcal{H}( \rho_{j-1}^n, \rho_{j}^n,  \rho_{j+1}^n,\cdots,  \rho_{j+m}^n) \leq \rho_{\max} \]
-\end{lemma}
+
+%------------------------------------------------------------------------------------------------
+%------------------------------------------------------------------------------------------------
+The proof is done by induction.
 \begin{proof}
+    For $n=0$, it is obvious that $\rho_{\min} \leq \rho_j^0 \leq \rho_{\max}$ for all $ j \in \mathbb{Z}$. Assume now that the result holds for some $n \in \mathbb{N}$, that is,
+    \[
+        \rho_{\min} \leq \rho_j^n \leq \rho_{\max}  \qquad \text{for all } j \in \mathbb{Z}.
+    \] We show that it also holds for $n+1$. We must show that
+    \[
+        \rho_{\min} \leq \rho_j^{n+1} \leq \rho_{\max} \qquad \text{for all } j \in \mathbb{Z},
+    \]
+    or equivalently
+    \[
+        \rho_{\min} \leq \mathcal{H}\bigl(\rho_{j-1}^n,\rho_j^n, \rho_{j+1}^n, \dots,\rho_{j+m}^n \bigr) \leq
+        \rho_{\max} \qquad \text{for all } j \in \mathbb{Z}.
+    \]
     Since
     \[
-        \mathcal{H}(\rho_{\min},\rho_{\min},\rho_{\min},\ldots,\rho_{\min})
+        \mathcal{H}(\rho_{\min},\rho_{\min},\rho_{\min},\dots,\rho_{\min})
         =\rho_{\min},
     \]
     we write
     \[
-        \mathcal{H}(\rho_{j-1}^n,\rho_j^n,\rho_{j+1}^n,\ldots,\rho_{j+m}^n)-\rho_{\min}
+        \mathcal{H}(\rho_{j-1}^n,\rho_j^n,\rho_{j+1}^n,\dots,\rho_{j+m}^n)-\rho_{\min}
         =
         \Delta \mathcal{H}_1+\Delta \mathcal{H}_2,
     \]
-    where $\Delta \mathcal{H}_1$ and $\Delta \mathcal{H}_2$ are given by
-    \[\Delta \mathcal{H}_1 = \mathcal{H}( \rho_{j-1}^n, \rho_{j}^n,  \rho_{j+1}^n,\cdots,  \rho_{j+m}^n) - \mathcal{H}( \rho_{\min}, \rho_{\min},  \rho_{j+1}^n,\cdots,  \rho_{j+m}^n),\]
-    \[\Delta \mathcal{H}_2 = \mathcal{H}( \rho_{\min}, \rho_{\min},  \rho_{j+1}^n,\cdots,  \rho_{j+m}^n) - \mathcal{H}(\rho_{\min}, \rho_{\min}, \rho_{\min},\cdots, \rho_{\min})\]
+    where
+    \[\Delta \mathcal{H}_1 = \mathcal{H}( \rho_{j-1}^n, \rho_{j}^n,  \rho_{j+1}^n,\dots,  \rho_{j+m}^n) - \mathcal{H}( \rho_{\min}, \rho_{\min},  \rho_{j+1}^n,\dots,  \rho_{j+m}^n)\]
+    and
+    \[\Delta \mathcal{H}_2 = \mathcal{H}( \rho_{\min}, \rho_{\min},  \rho_{j+1}^n,\dots,  \rho_{j+m}^n) - \mathcal{H}(\rho_{\min}, \rho_{\min}, \rho_{\min},\dots, \rho_{\min}).
+    \]
 
-    Focusing on $\Delta \mathcal{H}_1$, by mean value theorem there exists a point $(\tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n)$ on the line segment from $(\rho_{\min},\rho_{\min})$ to $(\rho_{j-1}^n,\rho_{j}^n)$ such that
+    Focusing on $\Delta \mathcal{H}_1$, by the mean value theorem there exists a point $(\tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n)$ on the line segment from $(\rho_{\min},\rho_{\min})$ to $(\rho_{j-1}^n,\rho_{j}^n)$ such that
     \begin{align*}
-        \Delta \mathcal{H}_1 = \frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n)(\rho_{j-1}^n- \rho_{\min}) + \frac{\partial \mathcal{H}}{\partial \rho_{j}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n)(\rho_{j}^n- \rho_{\min}),
+        \Delta \mathcal{H}_1 & =  \mathcal{H}( \rho_{j-1}^n, \rho_{j}^n,  \rho_{j+1}^n,\dots,  \rho_{j+m}^n) - \mathcal{H}( \rho_{\min}, \rho_{\min},  \rho_{j+1}^n,\dots,  \rho_{j+m}^n)                                                                                                                                                                 \\
+                             & = \frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \dots, \rho_{j+m}^n)(\rho_{j-1}^n- \rho_{\min}) + \frac{\partial \mathcal{H}}{\partial \rho_{j}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \dots, \rho_{j+m}^n)(\rho_{j}^n- \rho_{\min}),
     \end{align*}
     with
     \[0 \leq \rho_{\min} \leq \tilde{\rho}_{j-1}^n \leq \rho_{\max} \text{ and } 0 \leq \rho_{\min} \leq \tilde{\rho}_{j}^n \leq \rho_{\max}.\]
-    We want to show that
-    \[
-        \frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n)(\rho_{j-1}^n- \rho_{\min}) \geq 0
-    \]
+    We want to show that $\Delta \mathcal{H}_1 \geq 0$. It is enough to show that the two terms
+    \begin{equation}\label{eq:H_1_first_term}
+        \frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \dots, \rho_{j+m}^n)(\rho_{j-1}^n- \rho_{\min})
+    \end{equation}
     and
+    \begin{equation}\label{eq:H_1_second_term}
+        \frac{\partial \mathcal{H}}{\partial \rho_{j}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \dots, \rho_{j+m}^n)(\rho_{j}^n- \rho_{\min})
+    \end{equation}
+    are nonnegative. Since we have that
     \[
-        \frac{\partial \mathcal{H}}{\partial \rho_{j}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n)(\rho_{j}^n- \rho_{\min}) \geq 0,
-    \]
-    so that $\Delta \mathcal{H}_1 \geq 0.$
-    Since
-    \[
-        (\rho_{j-1}^n- \rho_{\min}) \geq 0,
-        \quad (\rho_{j}^n- \rho_{\min}) \geq 0,
+        (\rho_{j-1}^n- \rho_{\min}) \geq 0, \quad \text{and } (\rho_{j}^n- \rho_{\min}) \geq 0,
     \]
     it suffices to show that
     \[
-        \frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n)\geq 0,
-        \quad \frac{\partial \mathcal{H}}{\partial \rho_{j}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n)\geq 0.
+        \frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \dots, \rho_{j+m}^n)\geq 0 \quad \text{and }
+        \frac{\partial \mathcal{H}}{\partial \rho_{j}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \dots, \rho_{j+m}^n)\geq 0.
     \]
-
 
     Since the derivative of $\mathcal{H}$ with respect to $\rho_{j-1}^n$ is given by
     \[
-        \frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n}(\rho_{j-1}^n, \rho_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n)
+        \frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n}(\rho_{j-1}^n, \rho_{j}^n, \rho_{j+1}^n, \dots, \rho_{j+m}^n)
         =\lambda(1-q_j^n),
     \]
-    where
-    \[
-        q_j^n = w_0 \rho_{j}^n + w_1 \rho_{j+1}^n+ \cdots + w_{m-1} \rho_{j+m-1}^n
-        = \sum_{k=0}^{m-1} w_k \rho_{j+k}^n,
-    \]
-    we get
+    we obtain
     \begin{align*}
-        \frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n) = \lambda(1- \tilde{q}_j^n),
+        \frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \dots, \rho_{j+m}^n) = \lambda(1- \tilde{q}_j^n),
     \end{align*}
     where
     \[
-        \tilde{q}_j^n
-        = w_0 \tilde{\rho_{j}^n} + w_1 \rho_{j+1}^n+ \cdots + w_{m-1} \rho_{j+m-1}^n
-        = w_0 \tilde{\rho_{j}^n}+ \sum_{k=1}^{m-1} w_k \rho_{j+k}^n.
+        \tilde{q}_j^n := w_0 \tilde{\rho}_{j}^n+ \sum_{k=1}^{m-1} w_k \rho_{j+k}^n.
     \]
-    Moreover, we have $0 \leq \tilde{q}_j^n \leq 1$, because
-    \[0 \leq \rho_{\min} \leq \tilde{\rho}_{j}^n \leq \rho_{\max} \leq 1 \qquad\text{and } \qquad 0 \leq \rho_{\min} \leq \rho_{j+k}^n \leq \rho_{\max} \leq 1\] imply
-    \begin{align*}
-        \tilde{q}_j^n & = w_0 \tilde{\rho_{j}^n}+ \sum_{k=1}^{m-1} w_k \rho_{j+k}^n \\
-                      & \leq w_0 \rho_{\max} + \sum_{k=1}^{m-1} w_k \rho_{\max}     \\
-                      & = \sum_{k=0}^{m-1} w_k \rho_{\max}                          \\
-                      & = \rho_{\max} \sum_{k=0}^{m-1} w_k                          \\
-                      & = \rho_{\max} \leq 1,
-    \end{align*}
-    where we have used the normalization condition \[\sum_{k=0}^{m-1} w_k = 1.\]
-    By similar argument $\tilde{q}_j^n \geq \rho_{\min} \geq 0$. Therefore, we get
-    \[\frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n) = \lambda(1- \tilde{q}_j^n) \geq 0.\]
+    By the induction hypothesis, we have
+    \[
+        0 \leq \rho_{\min} \leq  \rho_{j+k}^{n} \leq \rho_{\max} \leq 1 \qquad \text{ for } k = -1, 0,1,\dots,m.
+    \] So, by a similar argument as \eqref{eq:q_j_equality}, we have $0 \leq \tilde{q}_j^n \leq 1$. Therefore, we obtain
+    \[\frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \dots, \rho_{j+m}^n) = \lambda(1- \tilde{q}_j^n) \geq 0.\]
+    So, \eqref{eq:H_1_first_term} is nonnegative.
 
-    As the derivative of $\mathcal{H}$ with respect to $\rho_{j}^n$ is given by
+    It remains to show that \eqref{eq:H_1_second_term} is nonnegative. The derivative of $\mathcal{H}$ with respect to $\rho_{j}^n$ is given by
     \[
-        \frac{\partial \mathcal{H}}{\partial \rho_{j}^n}(\rho_{j-1}^n, \rho_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n)
-        = 1-\lambda\left[(1-q_{j+1}^n)+w_0\rho_{j-1}^n\right],
+        \frac{\partial \mathcal{H}}{\partial \rho_{j}^n}(\rho_{j-1}^n, \rho_{j}^n, \rho_{j+1}^n, \dots, \rho_{j+m}^n)
+        = 1-\lambda\left[(1-q_{j+1}^n)+w_0\rho_{j-1}^n\right].
     \]
-    where
+    Then, we have
     \[
-        q_{j+1}^n = w_0 \rho_{j+1}^n + w_1 \rho_{j+2}^n+ \cdots + w_{m-1} \rho_{j+m}^n = \sum_{k=0}^{m-1} w_k \rho_{j+k+1}^n,
-    \]
-    we get
-    \[
-        \frac{\partial \mathcal{H}}{\partial \rho_{j}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n) =
+        \frac{\partial \mathcal{H}}{\partial \rho_{j}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \dots, \rho_{j+m}^n) =
         1-\lambda\left[(1-q_{j+1}^n)+w_0 \tilde{\rho}_{j-1}^n\right].\]
-    We are looking to obtain
-    \[
-        \frac{\partial \mathcal{H}}{\partial \rho_{j}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n) =
-        1-\lambda\left[(1-q_{j+1}^n)+w_0\tilde{\rho}_{j-1}^n \right] \geq 0.\]
-    In order to get this, we must have that
-    \[
-        0 \leq \lambda\left[(1-q_{j+1}^n)+w_0\tilde{\rho}_{j-1}^n\right]\leq 1
-    \]
-    Since we have $\lambda\left[(1-q_{j+1}^n)+w_0\rho_{j-1}^n\right] \geq 0$, it remains to show that
-    \[\lambda\left[(1-q_{j+1}^n)+w_0\tilde{\rho}_{j-1}^n \right] \leq 1.\]
-    We can estimate this as follows
-    \begin{align*}
-        \lambda\left[(1-q_{j+1}^n)+w_0\tilde{\rho}_{j-1}^n\right] & \leq \lambda\left[(1-q_{j+1}^n)+\tilde{\rho}_{j-1}^n\right]               \qquad \text{ since $0\leq w_0 \leq 1$ and $\tilde{\rho}_{j-1}^n \geq 0$ } \\
-                                                                  & = \lambda \Bigl(\theta^{(1)}(q_{j}^{n}, q_{j+1}^{n}) - \theta^{(4)}(\tilde{\rho}_{j-1}^n,\tilde{\rho}_j^n)\Bigr)                                     \\
-                                                                  & \leq \lambda \Bigl(\|\theta^{(1)}\|_{L^{\infty}}+ \|\theta^{(4)}\|_{L^{\infty}}\Bigr)                                                                \\
-                                                                  & < 1, \qquad \text{ by Assumption 4.2.4 }.
-    \end{align*}
-    So far, we have shown that
-    \[
-        \frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n)(\rho_{j-1}^n- \rho_{\min}) \geq 0
-    \]
-    and
-    \[
-        \frac{\partial \mathcal{H}}{\partial \rho_{j}^n} ( \tilde{\rho}_{j-1}^n, \tilde{\rho}_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n)(\rho_{j}^n- \rho_{\min}) \geq 0.
-    \]
+    Since $\lambda < \frac{1}{2}$ by Assumption~\ref{assm:assm_4}, and since $0\leq q_{j+1}^n \leq 1$ and $0 \leq w_0 \tilde{\rho}_{j-1}^n \leq 1$, we obtain
+    \[1-\lambda\left[(1-q_{j+1}^n)+w_0 \tilde{\rho}_{j-1}^n\right]\geq 0.\]
+    Thus, \eqref{eq:H_1_second_term} is nonnegative as well, and we conclude that $\Delta \mathcal{H}_1 \geq 0$.
 
-    Therefore, $\Delta \mathcal{H}_1 \geq 0$.
-
-    Now it remains to show $\Delta \mathcal{H}_2 \geq 0$. By the mean value theorem,
+    Next we show that $\Delta \mathcal{H}_2 \geq 0$. By the mean value theorem,
     there exist intermediate values
-    \[ 0 \leq \rho_{\min} \leq \tilde{\rho}_{j+k}^n \leq \rho_{\max} \leq 1 \qquad \text{for } k= 1,2,\cdots, m,\]
+    \[ 0 \leq \rho_{\min} \leq \tilde{\rho}_{j+k}^n \leq \rho_{\max} \leq 1 \qquad \text{for } k= 1,2,\dots, m,\]
     such that
-    \[
-        \Delta \mathcal{H}_2
-        =
-        \sum_{k=1}^{m}
-        \frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n}
-        \bigl(
-        \rho_{\min},\rho_{\min},
-        \tilde\rho_{j+1}^n,\ldots,\tilde\rho_{j+m}^n
-        \bigr)
-        (\rho_{j+k}^n-\rho_{\min}). \]
-    In order to have $\Delta \mathcal{H}_2 \geq 0$, we must have that
-    \[
-        \sum_{k=1}^{m}
-        \frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n}
-        \bigl(
-        \rho_{\min},\rho_{\min},
-        \tilde\rho_{j+1}^n,\ldots,\tilde\rho_{j+m}^n
-        \bigr)
-        (\rho_{j+k}^n-\rho_{\min}) \geq 0.
-    \]
-    That means we need to show that
+    \begin{align*}
+        \Delta \mathcal{H}_2 & = \mathcal{H}( \rho_{\min}, \rho_{\min},  \rho_{j+1}^n,\dots,  \rho_{j+m}^n) - \mathcal{H}(\rho_{\min}, \rho_{\min}, \rho_{\min},\dots, \rho_{\min})                          \\
+                             & = \sum_{k=1}^{m} \frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n}\bigl(\rho_{\min},\rho_{\min},\tilde\rho_{j+1}^n,\dots,\tilde\rho_{j+m}^n\bigr)(\rho_{j+k}^n-\rho_{\min}).
+    \end{align*}
+    In order to have $\Delta \mathcal{H}_2 \geq 0$, we must show that
     \[
         \frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n}
         \bigl(
         \rho_{\min},\rho_{\min},
-        \tilde\rho_{j+1}^n,\ldots,\tilde\rho_{j+m}^n
+        \tilde\rho_{j+1}^n,\dots,\tilde\rho_{j+m}^n
         \bigr)
-        (\rho_{j+k}^n-\rho_{\min}) \geq 0 \qquad \text{ for } k= 1,2, \cdots, m.
+        (\rho_{j+k}^n-\rho_{\min}) \geq 0 \qquad \text{ for } k= 1,2, \dots, m.
     \]
     Since
     \[
-        (\rho_{j+k}^n-\rho_{\min}) \geq 0 \qquad \text{ for } k= 1,2, \cdots, m,
+        (\rho_{j+k}^n-\rho_{\min}) \geq 0 \qquad \text{ for } k= 1,2, \dots, m,
     \]
     it suffices to show that
     \[
         \frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n}
         \bigl(
         \rho_{\min},\rho_{\min},
-        \tilde\rho_{j+1}^n,\ldots,\tilde\rho_{j+m}^n
+        \tilde\rho_{j+1}^n,\dots,\tilde\rho_{j+m}^n
         \bigr)
-        \geq 0 \qquad \text{ for } k= 1,2, \cdots, m.
+        \geq 0 \qquad \text{ for } k= 1,2, \dots, m.
     \]
 
-    For $k=m$, the derivative of $\mathcal{H}$ with respect to $\rho_{j+m}^n$ is given by
-    \[
-        \frac{\partial \mathcal{H}}{\partial \rho_{j+m}^n}(\rho_{j-1}^n, \rho_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n)
-        =
-        \lambda w_{k-1}\rho_j^n.
-    \]
-    This leads us to
-    \[
-        \frac{\partial \mathcal{H}}{\partial \rho_{j+m}^n}\bigl(
+    For $k=m$, using the convention $w_m=0$, the derivative of $\mathcal{H}$ with respect to $\rho_{j+m}^n$ is given by
+    \begin{align*}
+        \frac{\partial \mathcal{H}}{\partial \rho_{j+m}^n}(\rho_{j-1}^n, \rho_{j}^n, \rho_{j+1}^n, \dots, \rho_{j+m}^n) & =\lambda\left(w_{m-1}\rho_j^n-w_m\rho_{j-1}^n\right) \\
+                                                                                                                        & = \lambda w_{m-1}\rho_j^n
+    \end{align*}
+    Therefore,
+    \begin{align*}
+        \frac{\partial \mathcal{H}}{\partial \rho_{j+m}^n}
+        \bigl(
         \rho_{\min},\rho_{\min},
-        \tilde\rho_{j+1}^n,\ldots,\tilde\rho_{j+m}^n
+        \tilde\rho_{j+1}^n,\dots,\tilde\rho_{j+m}^n
         \bigr)
+         & = \lambda w_{m-1}\rho_{\min}                                                  \\
+         & \geq \lambda cm^{-2}\rho_{\min} \qquad \text{by Assumption~\ref{assm:assm_3}} \\
+         & \geq 0.
+    \end{align*}
+    For $k=1,\dots,m-1$, since we have
+    \[ \frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n}(\rho_{j-1}^n, \rho_{j}^n, \rho_{j+1}^n, \dots, \rho_{j+m}^n)
         =
-        \lambda w_{k-1}\rho_{\min} \geq 0.
-    \]
-    Since the derivative of $\mathcal{H}$ with respect to $\rho_{j+k}^n$ is given by
-
-    \[
-        \frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n}(\rho_{j-1}^n, \rho_{j}^n, \rho_{j+1}^n, \cdots, \rho_{j+m}^n)
-        =
-        \lambda\left(w_{k-1}\rho_j^n-w_k\rho_{j-1}^n\right),
-        \qquad \text{ for } k=1,\ldots,m,
-    \]
-    we get
+        \lambda\left(w_{k-1}\rho_j^n-w_k\rho_{j-1}^n\right),\]
+    we obtain
     \begin{align*}
         \frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n}
         \bigl(
         \rho_{\min},\rho_{\min},
-        \tilde{\rho}_{j+1}^n,\ldots,\tilde\rho_{j+m}^n
+        \tilde{\rho}_{j+1}^n,\dots,\tilde\rho_{j+m}^n
         \bigr) & = \lambda \left(w_{k-1}\rho_{\min} - w_{k}\rho_{\min}\right) \\
                & = \lambda \rho_{\min} (w_{k-1}- w_{k})
     \end{align*}
-    By Assumption 4.2.3 we have $(w_{k-1}- w_{k}) \geq cm^{-2} > 0$. Therefore,
+    By Assumption~\ref{assm:assm_3}, we have $(w_{k-1}- w_{k}) \geq cm^{-2} > 0$. Therefore,
     \[
         \frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n}
         \bigl(
         \rho_{\min},\rho_{\min},
-        \tilde\rho_{j+1}^n,\ldots,\tilde\rho_{j+m}^n
-        \bigr)= \lambda \rho_{\min} \left(w_{k-1}- w_{k}\right) \geq 0.
+        \tilde\rho_{j+1}^n,\dots,\tilde\rho_{j+m}^n
+        \bigr)= \lambda \rho_{\min} \left(w_{k-1}- w_{k}\right) \geq 0 \qquad \text{for } k=1,\dots,m-1.
     \]
-    So, it follows from that we obtain
+    Hence $\Delta \mathcal{H}_2 \geq 0$. We have shown that both $ \Delta \mathcal{H}_1 \geq 0 $ and $ \Delta \mathcal{H}_2 \geq 0$. Which implies
     \[
-        \Delta \mathcal{H}_2
-        =
-        \sum_{k=1}^{m}
-        \frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n}
-        \bigl(
-        \rho_{\min},\rho_{\min},
-        \tilde\rho_{j+1}^n,\ldots,\tilde\rho_{j+m}^n
-        \bigr)
-        (\rho_{j+k}^n-\rho_{\min}) \geq 0\]
-
-    We have shown that both $ \Delta \mathcal{H}_1 \geq 0 $ and $ \Delta \mathcal{H}_2 \geq 0$. Which implies
-    \[
-        \mathcal{H}(\rho_{j-1}^n,\rho_j^n,\rho_{j+1}^n,\ldots,\rho_{j+m}^n)-\rho_{\min}
+        \mathcal{H}(\rho_{j-1}^n,\rho_j^n,\rho_{j+1}^n,\dots,\rho_{j+m}^n)-\rho_{\min}
         =
         \Delta \mathcal{H}_1+\Delta \mathcal{H}_2 \geq 0 ,\]
     and therefore
     \[
-        \mathcal{H}(\rho_{j-1}^n,\rho_j^n,\rho_{j+1}^n,\ldots,\rho_{j+m}^n) \geq \rho_{\min}.
+        \mathcal{H}(\rho_{j-1}^n,\rho_j^n,\rho_{j+1}^n,\dots,\rho_{j+m}^n) \geq \rho_{\min}.
     \]
-    The upper bound can be shown by similar argument.
-\end{proof}
-Now we proof the Maximum principle by induction.
-\begin{proof}[Proof of Theorem 4.2.7]
-    For $n=0$, it is obvious that $\rho_{\min} \leq \rho_j^0 \leq \rho_{\max}$ for all $ j \in \mathbb{Z}$. Assume now that the result holds for any $n \in \mathbb{N}$, that is,
-    \[
-        \rho_{\min} \leq \rho_j^n \leq \rho_{\max}  \qquad \text{for all } j \in \mathbb{Z}.
-    \] We show that it also holds for $n+1$. By Lemma 4.2.8, we have
-    \[
-        \rho_{\min} \leq \mathcal{H}\bigl(\rho_{j-1}^n,\rho_j^n, \rho_{j+1}^n, \ldots,\rho_{j+m}^n \bigr) \leq
-        \rho_{\max}.
-    \]
-    By the definition of $\rho_j^{n+1}$, this gives $\rho_{\min} \leq \rho_j^{n+1} \leq \rho_{\max}$. Thus, by induction,
+    The upper bound can be shown by similar argument. Thus, by induction,
     \[
         \rho_{\min} \leq \rho_j^n \leq \rho_{\max} \qquad \text{for all }  j \in \mathbb{Z} \quad \text{and } n \in \mathbb{N}.
     \]
 \end{proof}
+
+%------------------------------------------------------------------------------------------------
+
+%------------------------------------------------------------------------------------------------
 \subsection{One-sided Lipschitz Estimate}
-Next, we are going to prove the one-sided Lipschitz condition. The one-sided Lipschitz condition will play a crucial role in showing the monotonicity of the update function $\mathcal{H}$ given in \eqref{eq:mono_H}.
-\begin{lemma}
-    Assume all conditions in Theorem 4.2.7 are given. Let $\{\rho_j^n\}_{j \in \mathbb{Z}}^{ n \in \mathbb{N}}$ be the numerical solution computed by \eqref{eq:mono_H}. Then, the following numerical differences
+Next, we prove the one-sided Lipschitz condition. The one-sided Lipschitz condition will play a crucial role in showing the monotonicity of the update function $\mathcal{H}$ given in \eqref{eq:mono_H}.
+\begin{lemma}\label{lem:lemma_1}
+    Suppose Assumptions~\ref{assm:assm_1}, \ref{assm:assm_3} and \ref{assm:assm_4} hold. In addition, suppose that
+    \begin{enumerate}
+        \item the initial data $\rho_0$ belongs to $L^\infty(\mathbb{R})$, has bounded total variation, and satisfies
+              \[
+                  0< \rho_{\min} \leq \rho_0(x) \le 1,  \qquad \text{for all } x \in \mathbb{R}
+                  \qquad
+              \]
+              and
+              \[
+                  -\frac{\rho_0(y)-\rho_0(x)}{y-x} \le L
+                  \qquad \text{for all } x \ne y \in \mathbb{R}
+              \]
+              for some constant $L>0$.
+
+        \item \[
+                  c\rho_{\min}\geq 2L\omega(0)\epsilon, \qquad \text{where $c$ is as in Assumption~\ref{assm:assm_3}}.
+              \]
+        \item
+              \[
+                  \epsilon= m \Delta x  \qquad \text{where $m \geq 1$ donets the number of cells}.
+              \]
+    \end{enumerate}
+    Let $\{\rho_j^n\}_{j \in \mathbb{Z}}^{ n \in \mathbb{N}}$ be the numerical solution computed by \eqref{eq:mono_H}.
+    Then, the numerical differences
     \begin{align*}
         r_j^n = \rho_{j+1}^n - \rho_j^n, \qquad j \in \mathbb{Z}, n \in \mathbb{N},
     \end{align*}
@@ -538,11 +378,11 @@ Next, we are going to prove the one-sided Lipschitz condition. The one-sided Lip
         r_j^n \geq -L\Delta x,  \qquad j \in \mathbb{Z}, n \in \mathbb{N}.
     \end{equation}
 \end{lemma}
-Before providing the proof of the above Lemma, let us first study the structure of
+We highlight the main results in the proof rather rigorously. We begin by considering the structure of
 \[
     r_j^{n+1} =  \rho_{j+1}^{n+1} - \rho_j^{n+1}.
 \]
-Since we have
+By definition in \eqref{eq:generic_H_N}, we have
 \[
     \rho_{j+1}^{n+1} = \rho_{j+1}^{n} + \lambda\Bigl[ g(\rho_{j}^{n}, \rho_{j+1}^{n}, q_{j}^{n},q_{j+1}^{n})-g(\rho_{j+1}^{n}, \rho_{j+2}^{n}, q_{j+1}^{n},q_{j+2}^{n})\Bigr]
 \]
@@ -550,7 +390,8 @@ and
 \[
     \rho_{j}^{n+1} = \rho_{j}^{n} + \lambda\Bigl[ g(\rho_{j-1}^{n}, \rho_{j}^{n}, q_{j-1}^{n},q_{j}^{n})-g(\rho_{j}^{n}, \rho_{j+1}^{n}, q_{j}^{n},q_{j+1}^{n})\Bigr],
 \]
-taking the the difference gives us
+where $g$ is the Godunov numerical flux.
+Taking the difference gives us
 \begin{equation*}
     \begin{split}
         r_j^{n+1} & = \rho_{j+1}^{n+1} - \rho_j^{n+1}                                                                                                                                                                                            \\
@@ -558,50 +399,39 @@ taking the the difference gives us
                   & =  r_j^n +  \lambda\Bigl[ 2g(\rho_{j}^{n}, \rho_{j+1}^{n}, q_{j}^{n},q_{j+1}^{n})-g(\rho_{j-1}^{n}, \rho_{j}^{n}, q_{j-1}^{n},q_{j}^{n})- g(\rho_{j+1}^{n}, \rho_{j+2}^{n}, q_{j+1}^{n},q_{j+2}^{n})\Bigr].
     \end{split}
 \end{equation*}
-As $g$ is quadratic, Huang and Du, see \cite[p.~12]{huangAsymptoticCompatibilityClass2024}, used Taylor's expansions to write $r_j^{n+1}$ as following:
-\begin{equation}\label{eq:differences}
-    r_j^{n+1}
-    =
-    \sum_{k=-1}^m c_{j,k}^n r_{j+k}^n
-    -2\lambda(\gamma_{13}+\gamma_{14})(r_j^n)^2
-    -2\lambda(\gamma_{23}+\gamma_{24})(r_{j+1}^n)^2,
-\end{equation}
-such that
-\[\sum_{k=-1}^m c_{j,k}^n = 1.\]
-
-Since we have
-\[ \gamma_{13}= \gamma_{23}= \gamma_{24}=0 \qquad \text{and } \gamma_{14}\]
-for the Godunov numerical flux $g$, \eqref{eq:differences} simplifies to
+As $g$ is quadratic, $r_j^{n+1}$ can be written as
 \begin{equation}\label{eq:differences_God}
     r_j^{n+1}
     =
     \sum_{k=-1}^m c_{j,k}^n r_{j+k}^n
     +2\lambda(r_j^n)^2,
 \end{equation}
-where,
+where
 \begin{align*}
     c_{j,-1}^n & = \lambda(1-q_j^n)                                           \\
     c_{j,0}^n  & = 1 - \lambda (1- q_j^n) + \lambda p_{j,0}^n -2\lambda r_j^n \\
-    c_{j,k}^n  & = \lambda p_{j,k}^n, \qquad \text{for } k= 1,2,\cdots,m,
+    c_{j,k}^n  & = \lambda p_{j,k}^n, \qquad \text{for } k= 1,2,\dots,m,
 \end{align*}
 and
-\[ p_{j,k}^n =  w_{k-1}\rho_{j+1}^n - w_k\rho_j^n + w_k r_j^n \qquad \text{with convention } w_{-1}= w_m = 0 \]
+\[ p_{j,k}^n =  w_{k-1}\rho_{j+1}^n - w_k\rho_j^n + w_k r_j^n \qquad \text{with convention } w_{-1}= w_m = 0.\]
 
 Now we prove the Lemma by induction
-\begin{proof}[Proof of Lemma 4.2.9]
-    The one-sided Lipschitz condition on $\rho_0$ in Assumption 4.2.2 gives us $r_j^0 \geq - L\Delta x$ for all $j\in \mathbb{Z}$. Assume now that \eqref{eq:one_sided_condition} holds for any $n \in \mathbb{N}$, that is,
+\begin{proof}[Proof of Lemma~\ref{lem:lemma_1}]
+    Following \cite{huangAsymptoticCompatibilityClass2024}, we do the analysis for $\Delta x = \epsilon m^{-1}$. The one-sided Lipschitz condition on $\rho_0$ gives $r_j^0 \geq - L\Delta x$ for all $j\in \mathbb{Z}$. Assume now that \eqref{eq:one_sided_condition} holds for some $n \in \mathbb{N}$, that is,
     \[
-        r_j^n \geq - L\Delta x,  \qquad j \in \mathbb{Z}, n \in \mathbb{N}.
+        r_j^n \geq - L\Delta x,  \qquad j \in \mathbb{Z}.
     \]
-    We show also \eqref{eq:one_sided_condition} holds for $n+1$.
-    It suffices to show that $r_j^{n+1}$ given in \eqref{eq:differences_God} is a convex combination of $r_{j-1}^n, r_{j}^n,\cdots,r_{j+m}^n$ plus the nonnegative term $2\lambda(r_j^n)^2$, since this implies
-    \[ \inf\limits_{j \in \mathbb{Z}} r_j^{n+1} \geq \inf\limits_{j \in \mathbb{Z}} r_j^{n} \geq -L\Delta x.\]
-    As the $\lambda(r_j^n)^2$ is nonnegative and $\sum_{k=-1}^m c_{j,k}^n = 1$, it remains to show that $c_{j,k}^n \geq 0$ for all $k= -1, 0,1, \cdots, m.$
+    We show also \eqref{eq:one_sided_condition} holds for $n+1$. It suffices to show that $r_j^{n+1}$ is a convex combination of $r_{j-1}^n, r_{j}^n,\dots,r_{j+m}^n$ plus the nonnegative term $2\lambda(r_j^n)^2$, since then
+    \[
+        \inf\limits_{j \in \mathbb{Z}} r_j^{n+1} \geq \inf\limits_{j \in \mathbb{Z}} r_j^{n} \geq -L\Delta x,
+    \]
+    which gives the desired result.
+
+    Since the term $2\lambda(r_j^n)^2$ in \eqref{eq:differences_God} is nonnegative and $\sum_{k=-1}^m c_{j,k}^n = 1$, it remains to show $c_{j,k}^n  \geq 0 $ for all  $k= -1,0,1,2,\dots,m$.
 
     Clearly, $c_{j,-1}^n \geq 0$ because we have shown that in \eqref{eq:First_argument}
     \begin{align*}
-        c_{j,-1}^n & =\frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n}              \\
-                   & = \lambda(1-q_j^n) \geq 0 \qquad \text{as } 0 \leq q_j^n \leq 1.
+        c_{j,-1}^n & =\frac{\partial \mathcal{H}}{\partial \rho_{j-1}^n} = \lambda(1-q_j^n) \geq 0 \qquad \text{as } 0 \leq q_j^n \leq 1.
     \end{align*}
     For $k= 0$, we have
     \begin{align*}
@@ -613,16 +443,112 @@ Now we prove the Lemma by induction
     \[
         (1- q_j^n)+ w_0\rho_j^n  + (2-w_0)r_j^n \leq 2.
     \]
-    Mark that all the terms $(1- q_j^n)$, $w_0\rho_j^n$ and $(2-w_0)$ are nonnegative provided that $ 0\leq q_j^n \leq 1$,  $0 \leq  w_0 \leq 1$ and  $0\leq \rho_j^n \leq 1$.
-
-    Now consider that  $r_j^n \leq 0$, then we $(2-w_0)r_j^n \leq 0$ and
+    Note that all the terms $(1- q_j^n)$, $w_0\rho_j^n$ and $(2-w_0)$ are nonnegative since we have $ 0\leq q_j^n \leq 1$,  $0 \leq  w_0 \leq 1$ and  $0\leq \rho_j^n \leq 1$. We assume first that $r_j^n \leq 0$, then we have $(2-w_0)r_j^n \leq 0$ and
     \begin{align*}
-        (1- q_j^n)+ w_0\rho_j^n  + (2-w_0)r_j^n & \leq (1- q_j^n)+ w_0\rho_j^n \\
-                                                & \leq (1- q_j^n)+ \rho_j^n    \\
+        (1- q_j^n)+ w_0\rho_j^n  + (2-w_0)r_j^n & \leq (1- q_j^n)+ w_0\rho_j^n                                                                \\
+                                                & \leq (1- q_j^n)+ \rho_j^n                                                                   \\
+                                                & \leq (1-q_j^n) + \rho_{\max} \qquad \text{By maximum principle Theorem~\ref{the:theorem_1}} \\
                                                 & \leq 2
     \end{align*}
-    since  $ 0\leq q_j^n \leq 1$, $0 \leq  w_0 \leq 1$, and  $0\leq  \rho_j^n \leq 1$.
+    If $r_j^n >0$, then we have $(2-w_0)r_j^n >0$. In this case, the term
+    \[
+        (1- q_j^n)+ w_0\rho_j^n  + (2-w_0)r_j^n
+    \]
+    is nonnegative and we must show that
+    \[
+        (1- q_j^n)+ w_0\rho_j^n  + (2-w_0)r_j^n \leq 2,
+    \]
+    or equivalently
+    \begin{equation}\label{eq:C0}
+        \begin{split}
+            (1- q_j^n)+ w_0\rho_j^n \leq 2 - (2-w_0)r_j^n
+        \end{split}
+    \end{equation}
+    Huang and Du, see \cite[p.~13]{huangAsymptoticCompatibilityClass2024}, claimed that this follows from Assumptions~\ref{assm:assm_1}--\ref{assm:assm_4} and the conditions in Lemma~\ref{lem:lemma_1}. But this does not seem as obvious as they claim. Because from the assumptions we can estimate the right hand side of \eqref{eq:C0} as
+    \begin{align*}
+        (1- q_j^n)+ w_0\rho_j^n & \leq (1- q_j^n)+ \rho_j^n                                                                   \\
+                                & \leq (1-q_j^n) + \rho_{\max} \qquad \text{By maximum principle Theorem~\ref{the:theorem_1}} \\
+                                & \leq 2,
+    \end{align*}
+    and the right hand side of \eqref{eq:C0} is strictly less than $2$, since the term $(2-w_0)r_j^n$ positive.
+    Since we have not got enough time to investigate this part properly, we continue to prove the rest of the proof.
+
+    For $ k= 1,2,\dots,m$, we have $c_{j,k}^n  = \lambda p_{j,k}^n$. So, it suffices to show that $p_{j,k}^n \geq 0$ for $ k= 1,2,\dots,m.$ We have
+    \begin{align*}
+        p_{j,k}^n & =  w_{k-1}\rho_{j+1}^n - w_k\rho_j^n + w_k r_j^n                       \\
+                  & = (w_{k-1} - w_k)\rho_{j+1}^n + w_k(\rho_{j+1}^n-\rho_j^n) + w_k r_j^n \\
+                  & = (w_{k-1} - w_k)\rho_{j+1}^n +  w_k r_j^n +  w_k r_j^n                \\
+                  & = (w_{k-1} - w_k)\rho_{j+1}^n + 2w_k r_j^n.
+    \end{align*}
+    The terms $(w_{k-1} - w_k)$, $\rho_{j+1}^n $ and $2w_k$ are nonnegative since we have
+
+    \[
+        (w_{k-1} - w_k)\geq cm^{-2}, \quad w_k \geq 0 \qquad \text{by Assumptions~\ref{assm:assm_2}--\ref{assm:assm_3}},
+    \]
+    and
+    \[
+        \rho_{j+1}^n \geq \rho_{\min} > 0 \qquad \text{by maximum principle, Theorem~\ref{the:theorem_1}}.
+    \]
+    So, if $r_j^n \geq 0$, then we have $2w_k r_j^n \geq 0$ and
+    \begin{align*}
+        (w_{k-1} - w_k)\rho_{j+1}^n + 2w_k r_j^n & \geq cm^{-2}\rho_{\min} + 2w_k r_j^n \\
+                                                 & \geq cm^{-2}\rho_{\min} \geq 0       \\
+    \end{align*}
+    If $r_j^n < 0$, then we have
+    \begin{equation}\label{eq:w_k_equality}
+        \begin{split}
+            w_k & \leq \omega^{\epsilon}(k\Delta x) \Delta x \qquad \text{by Assumption~\ref{assm:assm_3}}                                     \\
+                & = \frac{1}{\epsilon} \omega\!\left(\frac{k\Delta x}{\epsilon}\right) \Delta x  \qquad \text{by Assumption~\ref{assm:assm_1}} \\
+                & \leq \omega(0) \frac{\Delta x}{\epsilon} \qquad \text{since $\omega$ is decreasing on $[0,1]$}                               \\
+                & = \omega(0)m^{-1} \qquad \text{since $\epsilon = m \Delta x$}.
+        \end{split}
+    \end{equation}
+    \
+    So $w_k \leq \omega(0)m^{-1}$ implies  $2w_kr_j^n  \geq 2\omega(0)m^{-1} r_j^n $.
+    In this case, we obtain
+    \begin{align*}
+        (w_{k-1} - w_k)\rho_{j+1}^n + 2w_k r_j^n & \geq cm^{-2}\rho_{\min} + 2\omega(0)m^{-1}r_j^n                                                                   \\
+                                                 & \geq cm^{-2}\rho_{\min} - 2\omega(0)m^{-1}L\Delta x  \quad \text{by induction hypothesis}                         \\
+                                                 & = cm^{-2}\rho_{\min} - 2\omega(0)m^{-1} L \epsilon m^{-1}   \quad \text{since $\Delta x = \epsilon m^{-1}$}       \\
+                                                 & = m^{-2}( c\rho_{\min} - 2\omega(0)L \epsilon)\geq 0  \quad \text{since $c\rho_{\min} \geq 2\omega(0)L \epsilon$}
+    \end{align*}
+    Hence $p_{j,k}^n \geq 0$, and we conclude $c_{j,k}^n \geq 0$.
 \end{proof}
+\subsection{Monotonicity of the update function $\mathcal{H}$}
+Having Lemma~\ref{lem:lemma_1} at hand, we can finally deduce that the update function $\mathcal{H}$ given by \eqref{eq:mono_H} is nondecreasing in each of its arguments.
+\begin{proposition}\label{prop:mono_of_H}
+    Under conditions of the Lemma~\ref{lem:lemma_1}, the update function $\mathcal{H}$ given by \eqref{eq:mono_H} is a monotone scheme.
+\end{proposition}
+\begin{proof}
+    In Subsection~\ref{subsec:mono}, we have shown that $\mathcal{H}$ is nondecreasing with respect to $\rho_{j-1}, \rho_{j}$ and $\rho_{j+m}$. Now consider $k= 1,2,\dots,m-1$. We have
+    \begin{align*}
+        \frac{\partial \mathcal{H}}{\partial \rho_{j+k}^n} & = \lambda\left( w_{k-1}\rho_j^n -w_k\rho_{j-1}^n\right)                      \\
+                                                           & =\lambda \Bigl[(w_{k-1}- w_k) \rho_j^n + w_k(\rho_j^n - \rho_{j-1}^n )\Bigr] \\
+                                                           & = \lambda \Bigl[(w_{k-1}- w_k) \rho_j^n + w_k r_{j-1}^n\Bigr].
+    \end{align*}
+    Since $\lambda >0$, it suffices to show that $(w_{k-1}- w_k) \rho_j^n + w_k r_{j-1}^n \geq 0$.
+
+    If $r_{j-1}^n \geq 0 $, then we have
+    \begin{align*}
+        (w_{k-1}- w_k) \rho_j^n + w_k r_{j-1}^n & \geq cm^{-2}\rho_{\min} + w_k r_{j-1}^n \\
+                                                & \geq cm^{-2}\rho_{\min}  \geq 0.
+    \end{align*}
+
+    If $r_{j-1}^n < 0$, then we have $w_k \leq \omega(0)m^{-1}$ by \eqref{eq:w_k_equality}. This implies  $w_k r_{j-1}^n  \geq \omega(0)m^{-1} r_{j-1}^n  $. Therefore, we obtain
+    \begin{align*}
+        (w_{k-1}- w_k) \rho_j^n + w_k r_{j-1}^n & \geq cm^{-2}\rho_{\min} + \omega(0)m^{-1}r_{j-1}^n                                                                                               \\
+                                                & \geq cm^{-2}\rho_{\min} -\omega(0)m^{-1}L\Delta x \qquad \text{by Lemma~\ref{lem:lemma_1}}\                                                      \\
+                                                & = cm^{-2}\rho_{\min} -\omega(0)m^{-1}L\epsilon m^{-1} \qquad \text{since $\Delta x = \epsilon m^{-1}$ }                                          \\
+                                                & = m^{-2}\Bigl(c\rho_{\min}- \omega(0)L\epsilon\Bigr) \geq 0 \qquad \text{ since $c\rho_{\min} \geq 2\omega(0)L\epsilon \geq \omega(0)L\epsilon$}
+    \end{align*}
+    Therefore, $\mathcal{H}$ is nondecreasing with respect to all its arguments, which means  $\mathcal{H}$ is monotone.
+\end{proof}
+\subsection*{Summary}
+The maximum principle, Theorem~\ref{the:theorem_1}, gives $\mathbf{L^{\infty}}$ bounds. The total variation estimates are obtained from the monotonicity of $\mathcal{H}$. The Oleinike's entropy condition can be obtained from a careful analysis on the one sided Lipschitz condition, see \cite[LEMMA~4.3]{huangAsymptoticCompatibilityClass2024}. Thus, the numerical solution computed by \eqref{eq:mono_H} is uniformly bounded in $\mathbf{BV}_{loc}(\mathbb{R} \times \mathbb{R}_{+})$. So, Helly's theorem gives precompactness in $\mathbf{L}_{loc}^{1}$. Then, there exist a convergent subsequence in $\mathbf{L}_{loc}^{1}(\mathbb{R} \times \mathbb{R}_{+})$ to a limit function $\rho^{*}$ by Ascoli's theorem. Finally we can apply the Lax--Wendroff theorem to prove that the limit function $\rho^{*}$ is the entropy solution of the local model, then by uniqueness of the entropy solution the whole sequence converge to the same limit function. That is, when we have
+\[
+    0 < \epsilon \leq \frac{c\rho_{\min}}{2L\omega(0)},
+\]
+then the numerical solution converges to the unique entropy solution $u$ of the local model \eqref{eq:local model} as both $\Delta x \rightarrow 0$ and $\epsilon \rightarrow 0$ simultaneously.
 
 %\[ \tilde{q}_j^n = \sum_{k=0}^{m-1} \tilde{\rho}_{j+k}^n\]
 %\section{Assumptions}

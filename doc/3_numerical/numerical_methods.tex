@@ -1,6 +1,6 @@
 \part{First-order Numerical Methods}
-\chapter{Numerical Methods}
-In this section, we drive numerical methods for solving both the local model \eqref{eq:local model} and nonlocal model \eqref{eq:nonlocal_model}. First, we drive a general approach for designing numerical methods for conservation laws. Then, we establish the numerical methods for our specific chosen flux $f(u) =u(1-u)$.
+\chapter{First-order Numerical Methods}\label{chap:chapter_3}
+In this chapter, we drive numerical methods for solving both the local model \eqref{eq:local model} and nonlocal model \eqref{eq:nonlocal_model}. First, we derive a general approach for designing numerical methods for conservation laws. Then, we establish the numerical methods for our specific chosen flux $f(u) =u(1-u)$.
 \section{Finite Volume Scheme for a General flux \texorpdfstring{$f$}{f}}
 Designing a finite difference method typically consists of four steps:
 \begin{enumerate}
@@ -10,36 +10,30 @@ Designing a finite difference method typically consists of four steps:
     \item Solving the discretized problem.
 \end{enumerate}
 
-However, step 3 requires that solutions are sufficiently smooth, but solutions of conservation laws may not be differentiable or even continuous. In addition, the unknown solution $u$ of a conservation law may represent a density (as our model, $u$ represents the average number of cars per $\mathrm{m}^2$). In that case, step 2 is not flexible. For these reasons, we must adapt the steps above to design a suitable numerical method.
+However, step 3 requires that solutions are sufficiently smooth, but solutions of conservation laws may not be differentiable or even continuous. In addition, the unknown solution $u$ of a conservation law may represent a density (as our model, $u$ represents the average number of cars per $\mathrm{m}^2$). For these reasons, we must adapt the steps above to design a suitable numerical method.
 
 \subsection{Discretizing the Domain and Control Volumes}
 For simplicity, we consider a uniform discretization of both the one-dimensional spatial domain $[x_L, x_R]$ and the temporal domain $[0, T]$.
-We split the spatial domain $\Omega = [x_L, x_R]$ into $K$ smaller subdomains $\Omega^{j}$, such that
+We split the spatial domain $\Omega = [x_L, x_R]$ into $K$ smaller subdomains $\mathcal{C}_j$. Let
+\[
+    \Delta x = \dfrac{x_R - x_L}{K},
+\]
+then we have
 \begin{equation}
     \begin{split}
-        \Omega & = \bigcup_{j=0}^{K-1} \Omega^{j}                                \\
-               & = \bigcup_{j=0}^{K-1} [x_L + j\Delta x,\; x_L + (j+1)\Delta x],
+        \Omega & = \bigcup_{j=0}^{K-1} \mathcal{C}_j =  \bigcup_{j=0}^{K-1} [x_{j-\sfrac{1}{2}},\, x_{j+\sfrac{1}{2}})
     \end{split}
 \end{equation}
-where $\Delta x = \dfrac{x_R - x_L}{K}$.
-
-We denote the midpoint of each $\Omega^{j}$ by
-\[
-    x_j = x_L + \Big(j + \sfrac{1}{2}\Big)\Delta x,\quad j = 0,\dots,K-1,
-\]
-and use each midpoint value to define the computational cells or control volumes:
-\[
-    \mathcal{C}_{j} = [x_{j-\sfrac{1}{2}},\, x_{j+\sfrac{1}{2}}),
-\]
 where the left interface $x_{j-\sfrac{1}{2}}$ and the right interface $x_{j+\sfrac{1}{2}}$ of $\mathcal{C}_{j}$ are given by
 \[
     x_{j-\sfrac{1}{2}} = x_j - \tfrac{\Delta x}{2},\quad
     x_{j+\sfrac{1}{2}} = x_j + \tfrac{\Delta x}{2}.
 \]
-
-We have now split $\Omega$ into $K$ smaller non-overlapping subdomains called control volumes $\mathcal{C}_j$. These control volumes are essential for the finite volume method, as pointwise evaluation does not make sense.
-
-Setting $\Delta t = \frac{T}{N}$, we also discretize the temporal domain $[0,T]$ as
+Here $x_j$ denote the midpoint of each $\mathcal{C}_j$ given by
+\[
+    x_j = x_L + \Big(j + \sfrac{1}{2}\Big)\Delta x,\quad j = 0,\dots,K-1,
+\]
+We have now split $\Omega$ into $K$ smaller non-overlapping subdomains called control volumes $\mathcal{C}_j$. These control volumes are essential for the finite volume method, as pointwise evaluation does not make sense. Setting $\Delta t = \frac{T}{N}$, we also discretize the temporal domain $[0,T]$ as
 \[
     0 = t^{0} < t^{1} < \dots < t^{N} = T,\quad \text{where } t^n = n\Delta t,\; n = 0,\dots,N.
 \]
@@ -52,18 +46,17 @@ As solutions of conservations laws may be discontinuous, pointwise evaluation do
     \end{split}
 \end{equation}
 Assuming now the cell averages are known at some time level $t^n$, we find the cell averages at next time level $t^{n+1}$ as follows:\\
-Taking an integral of \eqref{eq:local model} over the domain $[x_{j- \sfrac{1}{2}}, x_{j+\sfrac{1}{2}}] \times [t^n, t^{n+1}] $
+Taking an integral of \eqref{eq:local model} over the domain $[x_{j- \sfrac{1}{2}}, x_{j+\sfrac{1}{2}}] \times [t^n, t^{n+1}] $ gives
 \begin{align*}
     \int_{t^n}^{t^{n+1}} \int_{x_{j-\sfrac{1}{2}}}^{x_{j+\sfrac{1}{2}}} {u_{t} \,dx \, dt}
-    +\int_{t^n}^{t^{n+1}} \int_{x_{j-\sfrac{1}{2}}}^{x_{j+\sfrac{1}{2}}} f(u)_{x} \,dx \, dt = 0
+    +\int_{t^n}^{t^{n+1}} \int_{x_{j-\sfrac{1}{2}}}^{x_{j+\sfrac{1}{2}}} f(u)_{x} \,dx \, dt = 0.
 \end{align*}
-
-And applying the fundamental theorem of calculus yields
+Applying the fundamental theorem of calculus yields
 \begin{equation}\label{eq:fundamental theorem}
     \begin{split}
         \int_{x_{j-\sfrac{1}{2}}}^{x_{j+\sfrac{1}{2}}} u(x, t^{n+1}) \,dx
         - \int_{x_{j-\sfrac{1}{2}}}^{x_{j+\sfrac{1}{2}}} u(x, t^{n}) \,dx \\
-        = - \int_{t^n}^{t^{n+1}} f(u(x_{j +\sfrac{1}{2}},t)) \,dt + \int_{t^n}^{t^{n+1}} f(u(x_{j-\sfrac{1}{2}},t)) \,dt
+        = - \int_{t^n}^{t^{n+1}} f(u(x_{j +\sfrac{1}{2}},t)) \,dt + \int_{t^n}^{t^{n+1}} f(u(x_{j-\sfrac{1}{2}},t)) \,dt.
     \end{split}
 \end{equation}
 Defining the numerical fluxes
@@ -90,145 +83,150 @@ We will now specify the numerical flux $F_{j+\sfrac{1}{2}}$ in \eqref{eq: FVM of
 
 \subsection{Lax--Friedrichs Scheme and Godunov Scheme for the Local Model}
 
-Focusing on the local model , the finite volume scheme \eqref{eq: FVM of general f} can be written as
+Focusing on the local model, the finite volume scheme \eqref{eq: FVM of general f} can be written as
 \begin{equation}\label{eq:generic_H}
     \begin{split}
-        u_{j}^{n+1} & = H(u_{j-p}^n,\cdots, u_{j+p}^n)                                                                                   \\
-                    & = u_{j}^{n} - \frac{\Delta t}{\Delta x} \Bigl(F(u_{j-p+1}^n,\cdots,u_{j+p}) - F(u_{j-p},\cdots,u_{j+p-1}^n)\Bigr),
+        u_{j}^{n+1} & = H(u_{j-p}^n,\dots, u_{j+p}^n)                                                                                 \\
+                    & = u_{j}^{n} - \frac{\Delta t}{\Delta x} \Bigl(F(u_{j-p+1}^n,\dots,u_{j+p}) - F(u_{j-p},\dots,u_{j+p-1}^n)\Bigr)
     \end{split}
 \end{equation}
 where $H$ is an update function that depends on $2p+1$ points with $p \in \mathbb{N}$, and $F$ is a numerical flux that depends on $2p$ points such that
 \[
-    F_{j+\sfrac{1}{2}} = F(u_{j-p+1},\cdots,u_{j+p}).
+    F_{j+\sfrac{1}{2}} = F(u_{j-p+1},\dots,u_{j+p}).
 \]
 If we choose $p=1$ we obtain a family of three-point finite volume schemes with corresponding two-point flux $F$ as follows
 \begin{equation}\label{eq:three_point_H}
     \begin{split}
-        u_{j}^{n+1} & = H(u_{j-1},u_{j},u_{j+1})                                                               \\
-                    & = u_{j}^{n} - \frac{\Delta t}{\Delta x} \Bigl(F(u_{j},u_{j+1}) - F(u_{j-1},u_{j})\Bigr),
+        u_{j}^{n+1}  = H(u_{j-1},u_{j},u_{j+1}) = u_{j}^{n} - \frac{\Delta t}{\Delta x} \Bigl(F(u_{j},u_{j+1}) - F(u_{j-1},u_{j})\Bigr).
     \end{split}
 \end{equation}
 The two-point flux function $F$ can be specified, for instance, using  Lax--Friedrichs, Godunov, Rusanov, and Engquist--Osher. But in this thesis, we focus on Lax--Friedrichs flux and Godunov flux.
 For our chosen flux $f(u)=u(1-u)$, we can specify the Lax--Friedrichs flux and Godunov flux:
 \begin{equation}\label{eq:Lax_F}
     \begin{split}
-        F_{j+\sfrac{1}{2}} & = F^{LxF}(u_{j}^{n},u_{j+1}^{n})                                                                                \\
-                           & = \frac{1}{2} u_{j}^n (1-u_{j}^n) + \frac{1}{2}u_{j+1}^n (1-u_{j+1}^n) + \frac{\alpha}{2} (u_{j}^n - u_{j+1}^n)
+        F_{j+\sfrac{1}{2}}  = F^{LxF}(u_{j}^{n},u_{j+1}^{n}) & =  \frac{1}{2} u_{j}^n (1-u_{j}^n) + \frac{1}{2}u_{j+1}^n (1-u_{j+1}^n) + \frac{\Delta x}{2 \Delta t} (u_{j}^n - u_{j+1}^n) \\
+                                                             & = \frac{1}{2} u_{j}^n (1-u_{j}^n) + \frac{1}{2}u_{j+1}^n (1-u_{j+1}^n) + \frac{\alpha}{2} (u_{j}^n - u_{j+1}^n)
     \end{split}
 \end{equation}
 and
 \begin{equation}\label{eq:God_F}
     \begin{split}
-        F_{j+\sfrac{1}{2}} & = F^{God}(u_{j}^{n},u_{j+1}^{n}) \\
-                           & = u_{j}^n (1-u_{j+1}^n),
+        F_{j+\sfrac{1}{2}} & = F^{God}(u_{j}^{n},u_{j+1}^{n}) = u_{j}^n (1-u_{j+1}^n),
     \end{split}
 \end{equation}
-respectively. $\alpha $ is a positive numerical viscosity to be chosen later in the implementation.
+respectively. Here $\alpha $ is a positive numerical viscosity to be chosen later in the implementation.
 
 \subsection{Lax--Friedrichs Scheme and Godunov Scheme for the Nonlocal Model}
-To specify the numerical flux $F_{j+\sfrac{1}{2}}$ for the nonlocal model we need to approximate the integral term of $V$ given in \eqref{eq: nonlocal operator}.\\
+To specify the numerical flux $F_{j+\sfrac{1}{2}}$ for the nonlocal model we need to approximate the integral term of $V_{\epsilon}$ given in \eqref{eq: nonlocal operator}.
 Let
-\[m:=\lceil \frac{\epsilon}{\Delta x}\rceil \, \text{denotes the number of cells involved in the nonlocal integral term \eqref{eq: nonlocal operator}} \]
-and
+\[m:=\lceil \frac{\epsilon}{\Delta x}\rceil \, \text{denotes the number of cells involved in the nonlocal integral term \eqref{eq: nonlocal operator}}, \]
+and define
 \[
-    V_{j+\sfrac12}:= \int_{0}^{\epsilon} \omega_{\epsilon}(y) u(x_{j+\sfrac12}+y,t) \, dy.
+    V_{j+\sfrac12}:= \int_{0}^{\epsilon} \omega^{\epsilon}(y) \rho(x_{j+\sfrac12}+y,t) \, dy.
 \]
-Assume the approximate cell averages $u_{j}^{n}$ are known at time level $t^{n}$, following \cite{blandinWellposednessConservationLaw2016} and \cite{huangAsymptoticCompatibilityClass2024} we approximate $V_{j+\sfrac12}$ in the way described below:\\
+Assume the approximate cell averages $\rho_{j}^{n}$ are known at time level $t^{n}$, following \cite{blandinWellposednessConservationLaw2016} and \cite{huangAsymptoticCompatibilityClass2024}, we approximate $V_{j+\sfrac12}$ in the way described below:\\
 Using the left endpoint approximation we have
 
 \begin{align*}
-    V_{j+\sfrac12} & \approx \Delta x \sum_{k=0}^{m-1} \omega_{\epsilon}(k\Delta x) u(x_{j+\sfrac12}+k\Delta x,t)                             \\
-                   & =\Delta x \sum_{k=0}^{m-1} \omega_{\epsilon}(k\Delta x) u({x_{j+k +\sfrac{1}{2}},t})                                     \\
-                   & \approx \Delta x \sum_{k=0}^{m-1} \omega_{\epsilon}(k\Delta x) u_{j+k}^{n}  \qquad \text{by definition of cell averages} \\
-                   & =  \sum_{k=0}^{m-1} w_k u_{j+k}^{n},  \qquad w_k= \omega_{\epsilon}(k\Delta x)\Delta x.
+    V_{j+\sfrac12} & \approx \Delta x \sum_{k=0}^{m-1} \omega^{\epsilon}(k\Delta x) \rho(x_{j+\sfrac12}+k\Delta x,t)                             \\
+                   & =\Delta x \sum_{k=0}^{m-1} \omega^{\epsilon}(k\Delta x) \rho({x_{j+k +\sfrac{1}{2}},t})                                     \\
+                   & \approx \Delta x \sum_{k=0}^{m-1} \omega^{\epsilon}(k\Delta x) \rho_{j+k}^{n}  \qquad \text{by definition of cell averages} \\
+                   & =  \sum_{k=0}^{m-1} w_k \rho_{j+k}^{n},  \qquad w_k= \omega^{\epsilon}(k\Delta x)\Delta x.
 \end{align*}
-We denote $\{ w_k \}_{k= 0}^{m-1}$ as a set of numerical quadrature weights that are used to approximate the nonlocal kernel $\omega_{\epsilon}$. $w_k$ can be given by\\
-left endpoint
-\begin{equation*}
-    w_k = \omega_{\epsilon}(k\Delta x)\Delta x \text{ for $k = 0, \cdots, m-1$},
-\end{equation*}
-normalized left endpoint
-\begin{equation*}
-    w_k = \frac{\omega_{\epsilon}(k\Delta x)\Delta x}{\sum_{k=0}^{m-1} \omega_{\epsilon}(k\Delta x)\Delta x}  \text{ for $k = 0, \cdots, m-1$},
-\end{equation*}
-and exact quadrature
-\begin{equation*}
-    w_k = \int_{k\Delta x}^{min\{(k+1)\Delta x,\epsilon \}}\omega_{\epsilon}(y) \,dy \text{ for $k = 0, \cdots, m-1$}.
-\end{equation*}
+We denote $\{ w_k \}_{k= 0}^{m-1}$ as a set of numerical quadrature weights that are used to approximate the nonlocal kernel $\omega^{\epsilon}$. $w_k$ can be given by\\
+
+\begin{enumerate}
+    \item Left endpoint
+          \begin{equation}\label{eq:left_endpoint-quadrature}
+              w_k = \omega^{\epsilon}(k\Delta x)\Delta x \text{ for $k = 0, \dots, m-1$},
+          \end{equation}
+    \item Normalized left endpoint
+          \begin{equation}\label{eq:normalized_left_endpoint_quadrature}
+              w_k = \frac{\omega^{\epsilon}(k\Delta x)\Delta x}{\sum_{k=0}^{m-1} \omega^{\epsilon}(k\Delta x)\Delta x}  \text{ for $k = 0, \dots, m-1$},
+          \end{equation}
+    \item  Exact quadrature
+          \begin{equation}\label{eq:exact_quadrature}
+              w_k = \int_{k\Delta x}^{min\{(k+1)\Delta x,\epsilon \}}\omega^{\epsilon}(y) \,dy \text{ for $k = 0, \dots, m-1$}.
+          \end{equation}
+\end{enumerate}
 
 Similar to the local model we consider here a family of finite volume schemes: \\
-For clarity, we let $\mathcal{U}_{j}^{n} = u_{j}^{n}$, so
 \begin{equation}\label{eq:generic_H_N}
     \begin{split}
-        \mathcal{U}_{j}^{n+1} & = \tilde{H}(\mathcal{U}_{j-1}^{n},\mathcal{U}_{j}^{n},\mathcal{U}_{j+1}^{n}\cdots,\mathcal{U}_{j+m}^{n})                                                                                                                   \\
-                              & = \mathcal{U}_{j}^{n} - \frac{\Delta t}{\Delta x} \Bigl(\mathcal{F}(\mathcal{U}_{j}^{n},\mathcal{U}_{j+1}^{n},q_{j}^{n},q_{j+1}^{n}) - \mathcal{F}(\mathcal{U}_{j-1}^{n},\mathcal{U}_{j}^{n},q_{j-1}^{n},q_{j}^{n})\Bigr),
+        \rho_{j}^{n+1} & = \mathcal{H}(\rho_{j-1}^{n},\rho_{j}^{n},\rho_{j+1}^{n}\dots,\rho_{j+m}^{n})                                                                                                          \\
+                       & = \rho_{j}^{n} - \frac{\Delta t}{\Delta x} \Bigl(\mathcal{F}(\rho_{j}^{n},\rho_{j+1}^{n},q_{j}^{n},q_{j+1}^{n}) - \mathcal{F}(\rho_{j-1}^{n},\rho_{j}^{n},q_{j-1}^{n},q_{j}^{n})\Bigr)
     \end{split}
 \end{equation}
-where $\tilde{H}$ is an update function depending on $m+2$ points, and $\mathcal{F}$ is a numerical flux depending on $m+1$ points with
+where $\mathcal{H}$ is an update function depending on $m+2$ points, and $\mathcal{F}$ is a numerical flux depending on $m+1$ points with
 \[
-    q_{j}^{n}= \sum_{k=0}^{m-1} w_k u_{j+k}^{n} = \sum_{k=0}^{m-1} w_k \, \mathcal{U}_{j+k}^{n}, \qquad m:=\lceil \frac{\epsilon}{\Delta x}\rceil.
+    q_{j}^{n}:= \sum_{k=0}^{m-1} w_k \, \rho_{j+k}^{n}.
 \]
 Now, the Lax--Friedrichs flux and Godunov flux can be specified as
 \begin{equation}\label{eq:Lax-F numerical flux}
     \begin{split}
-        F_{j+\sfrac{1}{2}} & = \mathcal{F}^{LxF}(\mathcal{U}_{j}^{n},\mathcal{U}_{j+1}^{n},q_{j}^{n},q_{j+1}^{n})                                                                                \\
-                           & =\frac{1}{2}\mathcal{U}_{j}^{n}(1- q_{j}^{n}) + \frac{1}{2}\mathcal{U}_{j+1}^{n} (1- q_{j+1}^{n}) + \frac{\alpha}{2} (\mathcal{U}_{j}^{n} - \mathcal{U}_{j+1}^{n}),
+        F_{j+\sfrac{1}{2}} & = \mathcal{F}^{LxF}(\rho_{j}^{n},\rho_{j+1}^{n},q_{j}^{n},q_{j+1}^{n})                                                                 \\
+                           & =\frac{1}{2}\rho_{j}^{n}(1- q_{j}^{n}) + \frac{1}{2}\rho_{j+1}^{n} (1- q_{j+1}^{n}) + \frac{\alpha}{2} (\rho_{j}^{n} - \rho_{j+1}^{n})
     \end{split}
 \end{equation}
 and
 \begin{equation}\label{eq:Godunov numerical flux}
     \begin{split}
-        F_{j+\sfrac{1}{2}} & = \mathcal{F}^{God}(\mathcal{U}_{j}^{n},\mathcal{U}_{j+1}^{n},q_{j}^{n},q_{j+1}^{n}) \\
-                           & = \mathcal{U}_{j}^{n} (1- q_{j+1}^{n}).
+        F_{j+\sfrac{1}{2}}  = \mathcal{F}^{God}(\rho_{j}^{n},\rho_{j+1}^{n},q_{j}^{n},q_{j+1}^{n}) = \rho_{j}^{n} (1- q_{j+1}^{n}),
     \end{split}
 \end{equation}
-
+respectively.
 \subsection{Nonlocal-to-local Limit of Numerical Discretizing}
-In the previous subsections, we have developed a family of finite volume schemes for the local model and nonlocal model. In particular, we have developed a three-point update function $H$ given in \eqref{eq:three_point_H} for the local model. Does the update function $\tilde{H}$ for the nonlocal model converge to the three-point update function $H$ for fixed $\Delta x$ as $\epsilon \rightarrow 0$?
+In the previous subsections, we have developed a family of finite volume schemes for the local model and nonlocal model. In particular, we have developed a three-point update function $H$ given in \eqref{eq:three_point_H} for the local model. Does the update function $\mathcal{H}$ \eqref{eq:generic_H_N} for the nonlocal model converge to the three-point update function $H$ for fixed $\Delta x$ as $\epsilon \rightarrow 0$?
 
-\begin{proposition}
-    Let $\Delta x > 0$ be fixed. Let $\mathcal{U}_{j}^{n} = u_{j}^{n}$ as before, and assume the numerical quadrature weights $w_k$ satisfy the following normalization condition: \\
-    \[ \sum_{k=0}^{M-1} w_k = 1.\]
-    Then, as $\epsilon \rightarrow 0$, The update function $\tilde{H}$ given in \eqref{eq:generic_H_N} converges to the three-point update function $H$ given in \eqref{eq:three_point_H}.
+\begin{proposition}\label{pro:nonlocal_to_local_limit}
+    Assume the numerical quadrature weights $w_k$ satisfy the following normalization condition: \\
+    \[
+        \sum_{k=0}^{m-1} w_k = 1.
+    \]
+    Let $\Delta x > 0$. Then, when $\epsilon \leq \Delta x$, the update function $\mathcal{H}$ given in \eqref{eq:generic_H_N} is equal to the three-point update function $H$ given in \eqref{eq:three_point_H}.
 \end{proposition}
 \begin{proof}
-    It suffices to show that the numerical flux $\mathcal{F}$ corresponding to the update function $\tilde{H}$ converge to the numerical flux $F$ corresponding to the three-point update function $H$. We need to show that\\
-    \[\mathcal{F}(\mathcal{U}_{j}^{n},\mathcal{U}_{j+1}^{n},q_{j}^{n},q_{j+1}^{n}) = F(u_{j},u_{j+1}) \qquad \text{as } \epsilon \rightarrow. \]
-    Since $\mathcal{U}_{j}^{n} = u_{j}^{n}$, it holds to show that
-    \[ q_{j}^{n}= \sum_{k=0}^{m-1} w_k \, \mathcal{U}_{j+k}^{n} = u_{j}^{n} \qquad \text{as } \epsilon \rightarrow 0.\]
-    If $\Delta x$ is fixed, and $\epsilon \rightarrow 0$, soon or later we get $ \epsilon \leq \Delta x$. In that case, we have $m=1$, i.e., only one cell of size $\Delta x$ is involved in then nonlocal integral term \eqref{eq: nonlocal operator}. So
-    \[ q_{j}^{n}= \sum_{k=0}^{m-1} w_k \, \mathcal{U}_{j+k}^{n} = w_0 \, \mathcal{U}_{j}^{n},\]
+    It suffices to show that
+    \[ q_{j}^{n}= \sum_{k=0}^{m-1} w_k \, \rho_{j+k}^{n} = \rho_{j}^{n} \qquad \text{whenever } \epsilon \leq \Delta x.
+    \]
+    Since then
+    \[
+        \mathcal{F}(\rho_{j}^{n},\rho_{j+1}^{n},q_{j}^{n},q_{j+1}^{n}) = \mathcal{F}(\rho_{j}^{n},\rho_{j+1}^{n},\rho_{j}^{n},\rho_{j+1}^{n}),
+    \]
+    which is a two-point numerical flux only depends on the local stencil values. That means $\mathcal{H}$ becomes a three-point update function for the local model.
+
+    If we have $\epsilon \leq \Delta x$. Then, we have $m=1$, i.e., only one cell of size $\Delta x$ is involved in then nonlocal integral term \eqref{eq: nonlocal operator}. So, we have
+    \[ q_{j}^{n}= \sum_{k=0}^{m-1} w_k \, \rho_{j+k}^{n} = w_0 \, \rho_{j}^{n}, \]
     and we must have $w_0=1$ by the normalization condition. This proves the claim.
 \end{proof}
-The proposition above tells us, for fixed $\Delta x$, the numerical solution $\mathcal{U}^{\epsilon, \Delta x}$ produced by the update function $\tilde{H}$ corresponding to the nonlocal model converges to the numerical solution $u^{\Delta x}$ produced by the three-point update function $H$ corresponding to the local model, as $\epsilon \rightarrow 0$. The normalization condition on the numerical quadrature weights $w_k$ played essential role in the proof. In the next chapter, we present numerical experiments showing how the numerical quadrature based on the left endpoint and the normalized left endpoint affects the convergence of numerical solutions to the local model.
+The proposition above tells us, if $\epsilon \leq \Delta x$ and the numerical quadrature weights $w_k$ satisfy the normalization condition, then the local method \eqref{eq:three_point_H} and nonlocal method \eqref{eq:generic_H_N} are equal.
 
 
 \section{The Boundary Conditions and Stability}
-In the preceding Proposition, we have showed that the numerical solution $\mathcal{U}^{\epsilon, \Delta x}$ of the nonlocal model \eqref{eq:nonlocal_model} converges to the numerical solution $u^{\Delta x}$ of the local model \eqref{eq:local model}. That is, we can use $\mathcal{U}^{\epsilon, \Delta x}$ to approximate the solutions of the nonlocal model and local model. In this subsection, we consider two main aspects; the boundary conditions and stability. Usually, both the boundary conditions and stability require careful treatment when solving PDEs numerically.
+In this section, we consider two main aspects; the boundary conditions and stability. Usually, both the boundary conditions and stability require careful treatment when solving PDEs numerically.
 \subsection{The Boundary Conditions}
-We desire an algorithm for solving both local model\eqref{eq:local model} and nonlocal model \eqref{eq:nonlocal_model} numerically. Using, for instance, the The Lax--Friedrichs scheme:\\[0.1in]
-\textbf{STEP 1.} Initialize $\mathcal{U}_{j}^{0}$ by setting:
+We desire an algorithm for solving both local model \eqref{eq:local model} and nonlocal model \eqref{eq:nonlocal_model} numerically. Using, for instance, the The Lax--Friedrichs scheme \eqref{eq:Lax-F numerical flux}:\\[0.1in]
+\textbf{STEP 1.} initialize $\rho_{j}^{0}$ by setting:
 \begin{align*}
-    \mathcal{U}_{j}^{0} = \frac{1}{\Delta x}\int_{x_{j-\sfrac{1}{2}}}^{x_{j+\sfrac{1}{2}}} u_{0}(x)\,dx, \quad \forall j \in \{0,\dots,K-1\}.
+    \rho_{j}^{0} = \frac{1}{\Delta x}\int_{x_{j-\sfrac{1}{2}}}^{x_{j+\sfrac{1}{2}}} \rho_{0}(x)\,dx, \quad \forall j \in \{0,\dots,K-1\}.
 \end{align*}
-\textbf{STEP 2.}   for $n = 0,\dots,N-1$, compute:
+\textbf{STEP 2.}  for $n = 0,\dots,N-1$ and $j \in \{0,\dots,K-1\}$, compute:
 \begin{align*}
-    \mathcal{U}_{j}^{n+1} & = \mathcal{U}_{j}^{n} - \frac{\Delta t}{\Delta x}\bigl(F_{j+\sfrac{1}{2}} - F_{j-\sfrac{1}{2}}\bigr)                                                                                                                                                                         \\
-                          & =  \mathcal{U}_{j}^{n} - \frac{\Delta t}{\Delta x} \Bigl[\frac{1}{2}\bigl(\mathcal{U}_{j+1}^{n}(1-q_{j+1}^{n}) - \mathcal{U}_{j-1}^{n}(1-q_{j-1}^{n})\bigr) - \frac{\alpha}{2}\big(\mathcal{U}_{j+1}^{n} + \mathcal{U}_{j-1}^{n}\big) + \alpha \, \mathcal{U}_{j}^{n}\Bigr].
+    \rho_{j}^{n+1} & = \rho_{j}^{n} - \frac{\Delta t}{\Delta x}\bigl(F_{j+\sfrac{1}{2}} - F_{j-\sfrac{1}{2}}\bigr)                                                                                                                                      \\
+                   & =  \rho_{j}^{n} - \frac{\Delta t}{\Delta x} \Bigl[\frac{1}{2}\bigl(\rho_{j+1}^{n}(1-q_{j+1}^{n}) - \rho_{j-1}^{n}(1-q_{j-1}^{n})\bigr) - \frac{\alpha}{2}\big(\rho_{j+1}^{n} + \rho_{j-1}^{n}\big) + \alpha \, \rho_{j}^{n}\Bigr].
 \end{align*}
-
 The second step is also supposed to hold for all $j \in \{0,\dots,K-1\}$. However, for some nodes for example $j = 0$ and  $j = K-1$ we obtain:
 \[
-    \mathcal{U}_{0}^{n+1} = \mathcal{U}_{j}^{n} - \frac{\Delta t}{\Delta x} \Bigl[\frac{1}{2}\big(\mathcal{U}_{1}^{n}(1-q_{1}^{n}) - \mathcal{U}_{-1}^{n}(1-q_{-1}^{n})\big) - \frac{\alpha}{2}\big(\mathcal{U}_{1}^{n} + \mathcal{U}_{-1}^{n}\big) + \alpha \, \mathcal{U}_{0}^{n}\Bigr],
+    \rho_{0}^{n+1} = \rho_{0}^{n} - \frac{\Delta t}{\Delta x} \Bigl[\frac{1}{2}\big(\rho_{1}^{n}(1-q_{1}^{n}) - \rho_{-1}^{n}(1-q_{-1}^{n})\big) - \frac{\alpha}{2}\big(\rho_{1}^{n} + \rho_{-1}^{n}\big) + \alpha \, \rho_{0}^{n}\Bigr]
 \]
 and
 \[
-    \mathcal{U}_{K-1}^{n+1} = \mathcal{U}_{j}^{n} - \frac{\Delta t}{\Delta x} \Bigl[ \frac{1}{2}\big(\mathcal{U}_{K}^{n}(1-q_{K}^{n}) - \mathcal{U}_{K-2}^{n}(1-q_{K-2}^{n})\big) - \frac{\alpha}{2}\big(\mathcal{U}_{K}^{n} + \mathcal{U}_{K-2}^{n}\big) + \alpha \, \mathcal{U}_{K-1}^{n}\Bigr],
+    \rho_{K-1}^{n+1} = \rho_{K-1}^{n} - \frac{\Delta t}{\Delta x} \Bigl[ \frac{1}{2}\big(\rho_{K}^{n}(1-q_{K}^{n}) - \rho_{K-2}^{n}(1-q_{K-2}^{n})\big) - \frac{\alpha}{2}\big(\rho_{K}^{n} + \rho_{K-2}^{n}\big) + \alpha \, \rho_{K-1}^{n}\Bigr],
 \]
 respectively.
-We observe that for some nodes, the scheme involves undefined terms such as $\mathcal{U}_{-1}^{n}$ and $\mathcal{U}_{K-1+\ell}^{n}$ for $ \ell = 0, \cdots m-1$. Therefore, without additional information the scheme is not valid for all nodes.
+We observe that for some nodes, the scheme involves undefined terms such as $\rho_{-1}^{n}$ and $\rho_{K-1+\ell}^{n}$ for $ \ell = 0, \dots m-1$. Therefore, without additional information the scheme is not valid for all nodes.
 
-The above discussion indicate that specifying boundary conditions are needed, so we take a look at how the boundary conditions are handled.
+The above discussion indicate that specifying boundary conditions are needed. So, we take a look at how the boundary conditions are handled.
 There are several options for specifying the boundary conditions on the spatial domain $[x_L, x_R]$, but the choice depends on whether we have an initial value problem (IVP) or a boundary value problem (BVP).
 
 \begin{itemize}
@@ -236,13 +234,13 @@ There are several options for specifying the boundary conditions on the spatial 
     \item \textbf{Boundary Value Problem (BVP):} Common choices include  Periodic, Dirichlet, and Neumann boundary conditions.
 \end{itemize}
 
-In this thesis, we focus on \textbf{artificial boundary conditions} and \textbf{Periodic boundary conditions}. For a detailed discussion of the remaining types, see \textcolor{red}{Citation needed here}. \textbf{Artificial boundary conditions} and \textbf{Periodic boundary conditions} are implemented as
+In this thesis, we focus on \textbf{artificial boundary conditions} and \textbf{Periodic boundary conditions}. For a detailed discussion of the remaining types; see \cite[p.~58]{Ulrik2015}. \textbf{Artificial boundary conditions} and \textbf{Periodic boundary conditions} are implemented as
 \[
-    \mathcal{U}_{-1}^{n}= \mathcal{U}_{0}^n ;  \quad \mathcal{U}_{K-1+\ell}^{n} = \mathcal{U}_{K-1}^n \text{ for } \ell = 0, \cdots m-1,
+    \rho_{-1}^{n}= \rho_{0}^n ;  \quad \rho_{K-1+\ell}^{n} = \rho_{K-1}^n \text{ for } \ell = 0, \dots m-1
 \]
 and
 \[
-    \mathcal{U}_{-1}^{n}= \mathcal{U}_{K-1}^n ; \quad \mathcal{U}_{K-1+\ell}^{n} = \mathcal{U}_{\ell}^n \text{ for } \ell = 0, \cdots m-1,\]
+    \rho_{-1}^{n}= \rho_{K-1}^n ; \quad \rho_{K-1+\ell}^{n} = \rho_{\ell}^n \text{ for } \ell = 0, \dots m-1,\]
 respectively.
 
 \subsection{The Stability}
@@ -250,9 +248,45 @@ We may face undesired oscillations when implementing the numerical schemes. The 
 \[
     \lambda = \frac{\Delta t}{\Delta x}
 \]
-plays essential role in obtaining stable numerical schemes. Normally, some numerical schemes require stricter CFL condition than others. In this thesis, we set the CFL condition as
+plays essential role in obtaining stable numerical schemes. Normally, some numerical schemes require stricter CFL condition than others. In \cite{huangAsymptoticCompatibilityClass2024}, the stability analysis is done under the condition
+\begin{equation}\label{eq:Lambda_condtitions}
+    \lambda \sum_{i=1}^{4}
+    \left\lVert \frac{\partial g}{\partial \rho_i} \right\rVert_{L^{\infty}} < 1
+\end{equation}
+where $g$ is a numerical flux.
+
+For convenience, let us consider the Godunov numerical flux given by
+\[
+    g(\rho_L,\rho_R,q_L,q_R)= \rho_L (1-q_R).
+\]
+Computing the partial derivatives gives
+\begin{equation}
+    \begin{split}
+        \frac{\partial g}{\partial \rho_L}  = 1-q_R, \qquad  \frac{\partial g}{\partial \rho_R}  = 0 \\
+        \frac{\partial g}{\partial q_L}     = 0,  \qquad   \frac{\partial g}{\partial q_R}       = -\rho_L.
+    \end{split}
+\end{equation}
+Suppose that $0 \leq \rho_L, \rho_R, q_L, q_R \leq 1$, then we have
+\begin{equation}\label{eq:lambda_God}
+    \begin{split}
+        1 & > \lambda \sum_{i=1}^4 \left\lVert \frac{\partial g}{\partial \rho_i} \right\rVert_{L^{\infty}}                                                                                                                                                                                                                          \\
+          & =\lambda \Bigl(\left\lVert \frac{\partial g}{\partial \rho_L} \right\rVert_{L^{\infty}} + \left\lVert \frac{\partial g}{\partial \rho_R} \right\rVert_{L^{\infty}} + \left\lVert \frac{\partial g}{\partial q_L} \right\rVert_{L^{\infty}} + \left\lVert \frac{\partial g}{\partial q_R} \right\rVert_{L^{\infty}}\Bigr) \\
+          & = \lambda \Bigl(\left\lVert \frac{\partial g}{\partial \rho_L} \right\rVert_{L^{\infty}}+ \left\lVert \frac{\partial g}{\partial q_R} \right\rVert_{L^{\infty}}\Bigr)                                                                                                                                                    \\
+          & = \lambda \Bigl( \sup\limits_{q_R \in [0,1]}| 1-q_R\vert  +  \sup\limits_{\rho_L \in [0,1]}|-\rho_L\vert \Bigr)                                                                                                                                                                                                          \\
+          & =  2\lambda,
+    \end{split}
+\end{equation}
+A similar calculation can be carried out for the Lax--Friedrichs numerical flux.
+When the numerical viscosity parameter is chosen as $\alpha=2$, the corresponding
+CFL condition becomes
+\[
+    \lambda < \frac{1}{4}.
+\]
+Thus, among the schemes considered here, the Lax--Friedrichs scheme imposes the
+more restrictive stability condition. Therefore, in the numerical experiments in
+this thesis, we choose the CFL condition
 \begin{equation}\label{eq:stability}
-    \Delta t \leq 4 \Delta x,
+    \Delta t \leq \frac{1}{4}\Delta x
 \end{equation}
 when implementing the numerical schemes.
 
