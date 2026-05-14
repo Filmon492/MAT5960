@@ -6,19 +6,21 @@ from local_conservation_laws import Local_Conservation_Laws
 
 def plot_local():
     #u0 = lambda x: 0 if x < 0 else 1 # Initial condition
-    u0 = lambda x: 0.6 if x < 0 else 0.1
+    u0_l = lambda x: 0.6 if x < 0 else 0.1
+    u0_r = lambda x: 0.1 if x < 0 else 0.6  # Initial condition Reimann with UR > UL
     #u0 = lambda x: 0.4 + 0.4*np.exp(-100*(x-0.5)**2)
     K = 2000
     N = 4000
-    x_L= -1
-    x_R= 1
-    T = 0.5 
+    x_L= -2
+    x_R= 2
+    T = 1
     #t= 1
    
     a = Local_Conservation_Laws(T, x_L, x_R, K, N)
     bx, bt = a.create_mesh()  
-    U0 = a.initial_value(u0, bx) 
+    U0 = a.initial_value(u0_r, bx) 
     plot_data = a.local_solver(U0, "dirichlet") 
+    print(len(plot_data))
     numerical_solution = plot_data[-1] 
 
     l1, entropy_solution = a.l1_error(bx, T, numerical_solution)
@@ -28,9 +30,9 @@ def plot_local():
    
 
     # Plotting the result at t = 1
-    final_time = 0.5
+    final_time = 1
     plt.plot(bx, plot_data[-1], label=f'numerical solution at time={final_time}')  # Plot the final time state
-    plt.plot(bx, entropy_solution, label=f'entropy solution at time={final_time}')
+    #plt.plot(bx, entropy_solution, label=f'entropy solution at time={final_time}')
     plt.xlabel('x')
     plt.ylabel('Density')
     plt.title('Lax-Friedrichs Method')

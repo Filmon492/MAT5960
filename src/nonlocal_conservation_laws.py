@@ -14,102 +14,169 @@ class Nonlocal_Conservation_laws(Local_Conservation_Laws):
         self.epsilon = epsilon 
         self.alpha = alpha 
         self.M = int(self.epsilon / self.h + 1.0) # number of celles involved in the nonlocal integral
-        #self.q_w = self.quadrature_weights(quadrature_weights)
+        self._first_order_quadrature_weights_cache = {}
+        self._first_order_velocity_index_cache = {}
+        self._first_order_flux_index_cache = {}
     
+    #def nonlocal_kernel_w(self, y):
+        #epsilon= self.epsilon
+        #return 2*(epsilon -y)/epsilon**2
     def nonlocal_kernel_w(self, y):
-        epsilon= self.epsilon
-        return 2*(epsilon -y)/epsilon**2
-        
+        epsilon = self.epsilon
+        y = np.asarray(y)
+
+        return np.where(
+            (0.0 <= y) & (y <= epsilon),
+            2.0 * (epsilon - y) / epsilon**2,
+            0.0
+        )
 
     def quadrature_weights(self, quadrature_weights):
+        cached_weights = self._first_order_quadrature_weights_cache.get(quadrature_weights)
+        if cached_weights is not None:
+            return cached_weights
+
         kh= np.arange(self.M) * self.h
         q_w = np.zeros(self.M)
         q_w[:]= self.nonlocal_kernel_w(kh)*self.h # quadrature weights given by left endpoint
         
         if quadrature_weights == "left endpoints":
-            return q_w
+            weights = q_w
         if quadrature_weights == "Normalized left endpoints" : 
-            return q_w / np.sum(q_w) # normalized left endponit
+            weights = q_w / np.sum(q_w) # normalized left endponit
+
+        self._first_order_quadrature_weights_cache[quadrature_weights] = weights
+        return weights
+
+    def _velocity_indices(self, bc):
+        cached_indices = self._first_order_velocity_index_cache.get(bc)
+        if cached_indices is not None:
+            return cached_indices
+
+        idx = np.arange(self.K)[:, None] + np.arange(self.M)[None, :]
+
+        if bc == "periodic":
+            idx = idx % self.K
+        else:
+            idx = np.clip(idx, 0, self.K - 1)
+
+        self._first_order_velocity_index_cache[bc] = idx
+        return idx
+
+    def _flux_indices(self, bc):
+        cached_indices = self._first_order_flux_index_cache.get(bc)
+        if cached_indices is not None:
+            return cached_indices
+
+        if bc == "periodic":
+            idR = (np.arange(self.K)[:, None] + [0, 1]) % self.K
+            idL = (np.arange(self.K)[:, None] + [-1, 0]) % self.K
+        else:
+            interior = np.arange(1, self.K - 1)[:, None]
+            idR = interior + [0, 1]
+            idL = interior + [-1, 0]
+
+        cached_indices = (idR, idL)
+        self._first_order_flux_index_cache[bc] = cached_indices
+        return cached_indices
     
-    def approx_velocity(self,U0, model, quadrature_weights):
-        Vj= np.zeros(self.K)
-        I = 0
-        if model == "local": # if we want to use the nonlocal scheme to implement the local model
-            I = U0.copy()
-            Vj= 1-I
+   
+    def approx_velocity(self, U0 , model, quadrature_weights):
+        if model == "local": # implement the local model
+            return 1 - U0
         elif model == "nonlocal":
             q_w = self.quadrature_weights(quadrature_weights)
+            idx = self._velocity_indices(getattr(self, "bc", None))
+            I = U0[idx] @ q_w
+            return 1 - I
+
+        return np.zeros(self.K)
+            
+            
+        """ 
             #Create a 2D array of indices for U0
-            idx = np.arange(self.K)[:, None] + np.arange(self.M)  # shape (K, M)
+            idx = (np.arange(self.K)[:, None] + np.arange(self.M)[None, :])
+            #idx = np.arange(self.K)[:, None] + np.arange(self.M)  # shape (K, M)
             idx = np.clip(idx, 0, self.K - 1) # make sure no out of bounds 
             I = U0[idx] @ q_w
             Vj= 1 - I
-        return Vj
+        return Vj """
+    
 
-    def nonlocal_solver(self, U0, bc, model, quadrature_weights, numerical_fluxes):
+    def nonlocal_solver(self, U0, bc, model, quadrature_weights, numerical_fluxes, store_history=True):
         """Solving the nonlocal conservation laws at every time step:
         Input: array vector with the solution at t = 0
-        Returns: Plot_data with the solution vector at each time step t"""
+        Returns: Plot_data with the solution vector at each time step t.
+        If store_history is False, only the final state is returned."""
         self.bc = bc
         h = self.h
         dt = self.dt
         U1 = np.zeros(len(U0))  # Vector solution at next time step
-        plot_data = [U0.copy()]  # Store initial data and the updated data
+        plot_data = [U0.copy()] if store_history else None
+        idR, idL = self._flux_indices(bc)
+       
 
-        for i in range(1, self.N + 1):  
-
+        for i in range(1, self.N + 1):    
             # Handle boundary conditions
-            if bc == "artificial":
+            if bc == "absorbing":
+                
                 U1[0] = U0[0]
                 U1[self.K - 1] = U0[self.K - 1]
             
-            elif bc == "dirichlet":
+            if bc == "dirichlet":
                 pass
             
-            elif bc == "periodic":
-                pass 
-            
+           
             Vj = self.approx_velocity(U0, model, quadrature_weights)
-
             if np.any(np.isnan(Vj)):
                 print("nan")
 
             print(100 * i / self.N)
+            
+            if bc == "periodic":
+                U0R = U0[idR]  # shape (K, 2)
+                VjR = Vj[idR]
+                U0L = U0[idL]
+                VjL = Vj[idL]
 
-            # Create index arrays for right and left fluxes
-            idR = np.arange(1, self.K - 1)[:, None] + [0, 1]  # shape (K-2, 2)
-            idL = np.arange(1, self.K - 1)[:, None] + [-1, 0]      # shape (K-2, 2)
+                    # Numerical fluxes
+                if numerical_fluxes == "Lax-F":
+                    FR = (U0R[:, 0] * VjR[:, 0] + U0R[:, 1] * VjR[:, 1]) / 2 \
+                        + self.alpha / 2 * (U0R[:, 0] - U0R[:, 1])
+                    FL = (U0L[:, 0] * VjL[:, 0] + U0L[:, 1] * VjL[:, 1]) / 2 \
+                        + self.alpha / 2 * (U0L[:, 0] - U0L[:, 1])
+                elif numerical_fluxes == "Godunov":
+                    FR = U0R[:, 0] * VjR[:, 1]
+                    FL = U0L[:, 0] * VjL[:, 1]
+                
+                #periodic update
+                U1[:] = U0[:] - dt / h * (FR - FL)
 
-            U0R = U0[idR]  # shape (K-2, 2)
-            VjR = Vj[idR]  # shape (K-2, 2)
-            U0L = U0[idL]  # shape (K-2, 2)
-            VjL = Vj[idL]  
+            
+            
+            else:
+                U0R = U0[idR]; VjR = Vj[idR]
+                U0L = U0[idL]; VjL = Vj[idL]
 
-            # Calculate the Lax-Friedrichs numerical fluxes
-            if numerical_fluxes == "Lax-F":
+                if numerical_fluxes == "Lax-F":
+                    FR = (U0R[:, 0] * VjR[:, 0] + U0R[:, 1] * VjR[:, 1]) / 2 \
+                        + self.alpha / 2 * (U0R[:, 0] - U0R[:, 1])
+                    FL = (U0L[:, 0] * VjL[:, 0] + U0L[:, 1] * VjL[:, 1]) / 2 \
+                        + self.alpha / 2 * (U0L[:, 0] - U0L[:, 1])
+                elif numerical_fluxes == "Godunov":
+                    FR = U0R[:, 0] * VjR[:, 1]
+                    FL = U0L[:, 0] * VjL[:, 1]
 
-                FR = (U0R[:, 0] * VjR[:, 0] + U0R[:, 1] * VjR[:, 1]) / 2  \
-                + self.alpha / 2 * (U0R[:, 0] - U0R[:, 1])  #numerical flux on the right interface
-                FL = (U0L[:, 0] * VjL[:, 0] + U0L[:, 1] * VjL[:, 1]) / 2  \
-                + self.alpha / 2 * (U0L[:, 0] - U0L[:, 1]) #numerical flux on the left interface
-            # Calculate the Godunov numerical fluxes
-            if numerical_fluxes == "Godunov":
-                FR = U0R[:, 0] * VjR[:, 1]
-                FL = U0L[:, 0] * VjL[:, 1] 
-             
-            if numerical_fluxes == "Lax-Ft":
-                FR = (U0R[:, 0] + U0R[:, 1]) * VjR[:, 1]/ 2  \
-                + self.alpha / 2 * (U0R[:, 0] - U0R[:, 1])  #numerical flux on the right interface
-                FL = (U0L[:, 0] + U0L[:, 1]) * VjL[:, 1] / 2  \
-                + self.alpha / 2 * (U0L[:, 0] - U0L[:, 1]) #numerical flux on the left interface  
+                U1[1:self.K - 1] = U0[1:self.K - 1] - dt / h * (FR - FL)
 
-            # Vectorized update of U1
-            U1[1:self.K - 1] = U0[1:self.K - 1] - dt / h * (FR - FL)
+            if store_history:
+                plot_data.append(U1.copy())
+            U0 = U1.copy()
 
-            plot_data.append(U1.copy())  # Store the result at each time step
-            U0 = U1.copy()  # Prepare for the next iteration
-        return plot_data 
-    
+        if store_history:
+            return plot_data
+        return U0.copy()
+
     
     def l1_error(self, bx, t,numerical_solution, entropy_solution):
         h = self.h

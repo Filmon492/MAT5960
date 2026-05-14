@@ -8,20 +8,53 @@ class Second_Order_Nonlocal(Nonlocal_Conservation_laws):
     """Class for solving the nonlocal model using second order numerical scheme"""
     def __init__(self, T, x_L, x_R, K, N, epsilon, alpha):
         super().__init__(T, x_L, x_R, K, N, epsilon, alpha)
+        self._second_order_quadrature_weights = None
+        self._second_order_velocity_cache = None
 
-    def nonlocal_kernel_w(self, y):
-        epsilon= self.epsilon
-        return 2*np.maximum(epsilon - y, 0.0) / epsilon**2
+    #def nonlocal_kernel_w(self, y):
+        #epsilon= self.epsilon
+        #return 2*np.maximum(epsilon - y, 0.0) / epsilon**2
         
+    def nonlocal_kernel_w(self, y):
+        epsilon = self.epsilon
+        y = np.asarray(y)
 
+        return np.where(
+            (0.0 <= y) & (y <= epsilon),
+            2.0 * (epsilon - y) / epsilon**2,
+            0.0
+        )
     def quadrature_weights(self):
+        if self._second_order_quadrature_weights is not None:
+            return self._second_order_quadrature_weights
+
         kh= np.arange(self.M+1) * self.h
         q_w = np.zeros(self.M+1)
         q_w[:]= self.nonlocal_kernel_w(kh)
         Q_w = q_w.copy()
         Q_w[0]= q_w[0]* 0.5 
         Q_w[-1] = q_w[-1] *0.5
-        return q_w / (self.h*np.sum(Q_w)) # Normalized quadrature weights
+        self._second_order_quadrature_weights = q_w / (self.h*np.sum(Q_w)) # Normalized quadrature weights
+        return self._second_order_quadrature_weights
+
+    def _velocity_cache(self):
+        if self._second_order_velocity_cache is not None:
+            return self._second_order_velocity_cache
+
+        K  = self.K
+        M  = self.M
+        q = self.quadrature_weights()
+        j = np.arange(K)[:, None]
+        k = np.arange(M)[None, :]
+        G = max(M + 2, 3)
+
+        self._second_order_velocity_cache = {
+            "qLw": q[:-1][None, :],
+            "qRw": q[1:][None, :],
+            "c_idx": G + j + k,
+            "G": G,
+        }
+        return self._second_order_velocity_cache
     
     def minmod(self, a, b, c):
         """Vectorized minmod limiter for arrays of the same shape."""
@@ -29,26 +62,30 @@ class Second_Order_Nonlocal(Nonlocal_Conservation_laws):
         min_abs = np.minimum(np.abs(a), np.minimum(np.abs(b), np.abs(c)))
         return np.where(same_sign, np.sign(a) * min_abs, 0.0)
 
-    def ghost_extension(self, U0, g):
+    def ghost_extension(self, U0, g, bc):
         """ adding ghost celles on the left and right"""
-
         K  = self.K
         U0e = np.empty(K + 2 * g, dtype=U0.dtype)
         U0e[g:g+K] = U0
-        
+       
         # extension of U0 using artificial bc
-        U0e[:g] = U0[0]
-        U0e[K+g:] = U0[-1]
-
+        if bc == "absorbing":
+            U0e[:g] = U0[0]
+            U0e[K+g:] = U0[-1]
+        #extension of U0 using periodic bc
+        if bc == "periodic":
+            U0e[:g] = U0[-g:]  # last ghost cells
+            U0e[K+g:] = U0[:g] # first ghost cells
+        
         return U0e 
  
-    def approx_left_right_values(self, U0):
+    def approx_left_right_values(self, U0, bc):
         """ Computes the reconstructed values at xj+1/2 and xj-1/2"""
     
        
         K  = self.K
-        g= 2
-        U0e = self.ghost_extension(U0,g)
+        g = 2
+        U0e = self.ghost_extension(U0, g, bc)
 
 
         # Build convenient stencil slices for vectorized slopes
@@ -80,7 +117,7 @@ class Second_Order_Nonlocal(Nonlocal_Conservation_laws):
         
    
 
-    def approx_velocity(self, U0):
+    def approx_velocity(self, U0, bc):
         """
         Compute the nonlocal convolution at all interfaces and return
         the left/right interface values per cell:
@@ -98,25 +135,13 @@ class Second_Order_Nonlocal(Nonlocal_Conservation_laws):
         R_right : ndarray, shape (K,)
         """
         h  = self.h
-        K  = self.K
-        M  = self.M
-        q = self.quadrature_weights()     # shape (M+1,)
-        qL = q[:-1]                       # w_k
-        qR = q[1:]                        # w_{k+1}
+        velocity_cache = self._velocity_cache()
+        qLw = velocity_cache["qLw"]
+        qRw = velocity_cache["qRw"]
+        c_idx = velocity_cache["c_idx"]
+        G = velocity_cache["G"]
 
-        qLw = qL[None, :]   # shape (1, M)
-        qRw = qR[None, :]   # shape (1, M)
-
-
-        # Indices for j,k
-        j = np.arange(K)[:, None]        # shape (K,1)
-        k = np.arange(M)[None, :]      # shape (1,M)
-        
-    
-        G = max(M+2, 3)
-        U0e = self.ghost_extension(U0,G)
-        c_idx = G + j + k
-         # Build convenient stencil slices for vectorized slopes
+        U0e = self.ghost_extension(U0, G, bc)
 
         
         Ujm1 = U0e[c_idx - 1]     #u_{j+m-1}
@@ -156,19 +181,21 @@ class Second_Order_Nonlocal(Nonlocal_Conservation_laws):
         return Vj_L, Vj_R
 
 
-    def second_order_solver(self, U0):
-        """Solving the nonlocal conservation laws at every time step"""
+    def second_order_solver(self, U0, bc, store_history=True):
+        """Solving the nonlocal conservation laws at every time step.
+        If store_history is False, only the final state is returned."""
         
         h = self.h
         dt = self.dt
         U1 = np.zeros_like(U0) # Vector solution at next time step
-        plot_data = [U0.copy()]  # Store initial data and the updated data
+        plot_data = [U0.copy()] if store_history else None
+        
 
         for i in range(1, self.N + 1):  
 
             #Stage 1 
-            U_L, U_R = self.approx_left_right_values(U0)
-            Vj_L, Vj_R = self.approx_velocity(U0)
+            U_L, U_R = self.approx_left_right_values(U0,bc)
+            Vj_L, Vj_R = self.approx_velocity(U0, bc)
 
             F_right = U_R * Vj_R
             F_left  = U_L * Vj_L
@@ -176,8 +203,8 @@ class Second_Order_Nonlocal(Nonlocal_Conservation_laws):
             U_first = U0 - dt/h * (F_right - F_left)
 
             # Stage 2 
-            U_L1, U_R1 = self.approx_left_right_values(U_first)
-            Vj_L1, Vj_R1 = self.approx_velocity(U_first)
+            U_L1, U_R1 = self.approx_left_right_values(U_first, bc)
+            Vj_L1, Vj_R1 = self.approx_velocity(U_first, bc)
 
             F_right1 = U_R1 * Vj_R1
             F_left1  = U_L1 * Vj_L1
@@ -192,8 +219,11 @@ class Second_Order_Nonlocal(Nonlocal_Conservation_laws):
             #Final update (RK2 averaging)
             U_new = 0.5 * (U0+ U_second)
 
-            plot_data.append(U_new.copy())  # Store the result at each time step
+            if store_history:
+                plot_data.append(U_new.copy())  # Store the result at each time step
             U0 = U_new.copy()  # Prepare for the next iteration
-        return plot_data
+        if store_history:
+            return plot_data
+        return U0.copy()
 
     
