@@ -1,0 +1,22 @@
+{
+    // Disable inline AI/code suggestions in this workspace
+    "editor.inlineSuggest.enabled": false,
+
+    // Optional: disable Copilot suggestions if extension is installed
+    "github.copilot.enable": "off",
+    "github.copilot.inlineSuggest.enable": false,
+
+    // Keep VS Code on the same interpreter used in this workspace
+    "python.defaultInterpreterPath": "/Library/Frameworks/Python.framework/Versions/3.9/bin/python3",
+
+    // Treat src/ as a top-level import root for local modules
+    "python.analysis.extraPaths": [
+        "./src"
+    ],
+    "python.autoComplete.extraPaths": [
+        "./src"
+    ],
+    "cSpell.words": [
+        "precompactness"
+    ]
+}

@@ -163,7 +163,7 @@ Then, we obtain the nonlocal semidiscrete scheme:
     \[
         G_{j+\sfrac12}^- = u_{j+\sfrac12}^-(1 - u_{j+\sfrac12}^+).
     \]
-    We keep the convention that \(u\) denotes the local solution and \(\rho\) denotes the nonlocal solution. If $\Delta x$ is fixed, and $\epsilon \rightarrow 0$, soon or later we get $ \epsilon < \Delta x$. In that case $M$ = 1. Hence we get
+    We keep the convention that \(u\) denotes the local solution and \(\rho\) denotes the nonlocal solution. If $\Delta x$ is fixed, and $\epsilon \rightarrow 0$, sooner or later we get $ \epsilon < \Delta x$. In that case $M$ = 1. Hence we get
     \[Q_{\Delta x} = \frac{\Delta x}{2} \Bigl(W_0 + W_{1}\Bigr), \qquad \tilde{W}_0= \frac{W_0}{Q_{\Delta x}} , \qquad \tilde{W}_1= \frac{W_1}{Q_{\Delta x}},\]
     and
     \[ R_{j+\sfrac12} = \frac{\Delta x}{2} \Bigl( \tilde{W}_0 \rho_{j+\sfrac12}^+ + \tilde{W}_{1}\rho_{j+\sfrac32}^- \Bigr). \]
@@ -201,7 +201,7 @@ to obtain the second-order Godunov scheme.
 
 
 \chapter{Comparison of First and Second-Order Godunov Scheme}\label{cha:chapter_7}
-In this chapter we will present numerical experiments where we compare the first and second order Godunov scheme.
+In this chapter, we will present numerical experiments where we compare the first- and second-order Godunov schemes.
 \section{Numerical Convergence to the local Model}
 \begin{table}[H]
     \centering
@@ -220,7 +220,7 @@ In this chapter we will present numerical experiments where we compare the first
             1024            & $1.2565 \times 10^{-2}$ & 0.7614       \\
             \hline
         \end{tabular}
-        \caption*{(a) First order Godunov scheme}
+        \caption*{(a) First-order Godunov scheme}
     \end{minipage}
     \hfill
     \begin{minipage}{0.5\textwidth}
@@ -238,10 +238,10 @@ In this chapter we will present numerical experiments where we compare the first
             1024            & $7.0899 \times 10^{-3}$ & 0.8199       \\
             \hline
         \end{tabular}
-        \caption*{(b) Second order Godunov scheme}
+        \caption*{(b) Second-order Godunov scheme}
     \end{minipage}
 
-    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Godunov first and second order scheme in solving the local model with the Riemann initial data \eqref{eq:sloving rarefaction}.}
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the first- and second-order Godunov schemes in solving the local model with the Riemann initial data \eqref{eq:sloving rarefaction}.}
     \label{tab:table_10}
 \end{table}
 
@@ -262,7 +262,7 @@ In this chapter we will present numerical experiments where we compare the first
             1024            & $3.3509 \times 10^{-3}$ & 1.0112       \\
             \hline
         \end{tabular}
-        \caption*{(a) First order Godunov scheme}
+        \caption*{(a) First-order Godunov scheme}
     \end{minipage}
     \hfill
     \begin{minipage}{0.5\textwidth}
@@ -280,10 +280,10 @@ In this chapter we will present numerical experiments where we compare the first
             1024            & $1.6722 \times 10^{-3}$ & 0.9838       \\
             \hline
         \end{tabular}
-        \caption*{(b) Second order Godunov scheme}
+        \caption*{(b) Second-order Godunov scheme}
     \end{minipage}
 
-    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Godunov first and second order scheme in solving the local model with the Riemann initial data \eqref{eq:sloving shocks}.}
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the first- and second-order Godunov schemes in solving the local model with the Riemann initial data \eqref{eq:sloving shocks}.}
     \label{tab:table_11}
 \end{table}
 
@@ -305,7 +305,7 @@ In this chapter we will present numerical experiments where we compare the first
             \hline
             \hline
         \end{tabular}
-        \caption*{(a) First order Godunov scheme}
+        \caption*{(a) First-order Godunov scheme}
     \end{minipage}
     \hfill
     \begin{minipage}{0.5\textwidth}
@@ -323,16 +323,16 @@ In this chapter we will present numerical experiments where we compare the first
             1024            & $5.8947 \times 10^{-3} $ & 0.9292       \\
             \hline
         \end{tabular}
-        \caption*{(b) Second order Godunov scheme}
+        \caption*{(b) Second-order Godunov scheme}
     \end{minipage}
 
-    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Godunov first and second order scheme in solving the local model with the smooth initial data \eqref{eq:smooth}.}
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the first- and second-order Godunov schemes in solving the local model with the smooth initial data \eqref{eq:smooth}.}
     \label{tab:table_12}
 \end{table}
-The numerical experiments above indicate that the second-order scheme \eqref{eq:SSP-Godunov} is asymptotic compatible. However, It does not seem that the $L^{1}$-errors and observed order of convergence have improved.
+The numerical experiments above indicate that the second-order scheme \eqref{eq:SSP-Godunov} is asymptotically compatible. However, it does not seem that the $L^{1}$-errors and observed order of convergence have improved.
 
 \section{Numerical Convergence to the Nonlocal Model}
-We test now the numerical convergence of the second-order scheme \eqref{eq:SSP-Godunov} to the nonlocal model \eqref{eq:nonlocal_model}.
+We do now the comparison on the nonlocal model \eqref{eq:nonlocal_model}.
 \begin{table}[H]
     \centering
     \begin{minipage}{0.45\textwidth}
@@ -350,7 +350,7 @@ We test now the numerical convergence of the second-order scheme \eqref{eq:SSP-G
             1024            & $ 2.6423 \times 10^{-3}$ & 1.1748       \\
             \hline
         \end{tabular}
-        \caption*{(a) First order Godunov scheme}
+        \caption*{(a) First-order Godunov scheme}
     \end{minipage}
     \hfill
     \begin{minipage}{0.5\textwidth}
@@ -368,10 +368,10 @@ We test now the numerical convergence of the second-order scheme \eqref{eq:SSP-G
             1024            & $ 2.9541 \times 10^{-4}$ & 1.1590       \\
             \hline
         \end{tabular}
-        \caption*{(b) Second order Godunov scheme}
+        \caption*{(b) Second-order Godunov scheme}
     \end{minipage}
 
-    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Godunov first and second order scheme in solving the nonlocal model with the Riemann initial data \eqref{eq:sloving rarefaction}.}
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the first- and second-order Godunov schemes in solving the nonlocal model with the Riemann initial data \eqref{eq:sloving rarefaction}.}
     \label{tab:table_7}
 \end{table}
 
@@ -392,7 +392,7 @@ We test now the numerical convergence of the second-order scheme \eqref{eq:SSP-G
             1024            & $1.7225 \times 10^{-3}$ & 1.1885       \\
             \hline
         \end{tabular}
-        \caption*{(a) First order Godunov scheme}
+        \caption*{(a) First-order Godunov scheme}
     \end{minipage}
     \hfill
     \begin{minipage}{0.5\textwidth}
@@ -410,10 +410,10 @@ We test now the numerical convergence of the second-order scheme \eqref{eq:SSP-G
             1024            & $1.4551 \times 10^{-4}$  & 1.9448       \\
             \hline
         \end{tabular}
-        \caption*{(b) Second order Godunov scheme}
+        \caption*{(b) Second-order Godunov scheme}
     \end{minipage}
 
-    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Godunov first and second order scheme in solving the nonlocal model with the Riemann initial data\eqref{eq:sloving shocks}.}
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the first- and second-order Godunov schemes in solving the nonlocal model with the Riemann initial data \eqref{eq:sloving shocks}.}
     \label{tab:table_8}
 \end{table}
 
@@ -435,7 +435,7 @@ We test now the numerical convergence of the second-order scheme \eqref{eq:SSP-G
             1024            & $2.2161 \times 10^{-3}$ & 1.2143       \\
             \hline
         \end{tabular}
-        \caption*{(a) First order Godunov scheme}
+        \caption*{(a) First-order Godunov scheme}
     \end{minipage}
     \hfill
     \begin{minipage}{0.5\textwidth}
@@ -453,16 +453,16 @@ We test now the numerical convergence of the second-order scheme \eqref{eq:SSP-G
             1024            & $3.0656 \times 10^{-5}$  & 2.3218       \\
             \hline
         \end{tabular}
-        \caption*{(b) Second order Godunov scheme}
+        \caption*{(b) Second-order Godunov scheme}
     \end{minipage}
 
-    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Godunov first and second order scheme in solving the nonlocal model with the smooth initial data \eqref{eq:smooth}.}
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the first- and second-order Godunov schemes in solving the nonlocal model with the smooth initial data \eqref{eq:smooth}.}
     \label{tab:table_9}
 \end{table}
 We observe in the above results that both the $L^{1}$-errors and observed order of convergence are improved.
 
 \section{Conclusion}
 
-The second-order numerical method for the nonlocal model \eqref{eq:nonlocal_model} was developed in \cite{gowdag.d.ConvergenceSecondorderScheme2023}. However, the authors do not address asymptotic compatibility. Moreover, their BV estimate in space blow up as \(\Delta x \to 0\) and \(\epsilon \to 0\). This motivates our investigation of the asymptotic compatibility problem.
+The second-order numerical method for the nonlocal model \eqref{eq:nonlocal_model} was developed in \cite{gowdag.d.ConvergenceSecondorderScheme2023}. However, the authors do not address asymptotic compatibility. Moreover, their BV estimate in space blows up as \(\Delta x \to 0\) and \(\epsilon \to 0\). This motivates our investigation of the asymptotic compatibility problem.
 
-Our first positive result was the convergence of the nonlocal-to-local limit, summarized in Proposition~\ref{pro:positive_result}. To prove asymptotic compatibility, it may be useful to investigate whether the second-order scheme satisfies a one-sided Lipschitz condition analogous to that established for first-order schemes in Lemma~\ref{lem:lemma_1}.
+Our first positive result was the convergence of the nonlocal-to-local limit, summarized in Proposition~\ref{pro:positive_result}. To prove asymptotic compatibility, it may be useful to investigate whether the second-order scheme satisfies a one-sided Lipschitz condition analogous to that established for first-order schemes in Lemma~\ref{lem:lemma_1}. Though, the proof of Lemma~\ref{lem:lemma_1} is not rigorous.

@@ -1,3 +1,4 @@
+
 \chapter{Preliminaries}\label{chap:chapter_2}
 In this chapter, we present the necessary background on local and nonlocal conservation laws.
 \section{Scalar Local and Nonlocal Conservation Laws}
@@ -34,11 +35,11 @@ where now $V_{\epsilon}$ is given as
 for some nonlocal kernel $\omega^{\epsilon}: \mathbb{R} \rightarrow \mathbb{R}$ satisfying $\omega^{\epsilon} \geq 0$ and $\int_{0}^{\epsilon} \omega^{\epsilon}(y)  \, dy = 1$.
 
 
-Let us denote \eqref{eq:local model} and \eqref{eq:nonlocal_model} the local and nonlocal model, respectively. The first natural question to ask is whether the nonlocal model \eqref{eq:nonlocal_model} converges to the local model \eqref{eq:local model} as $\epsilon$ tends to zero. To answer the question, we consider the rescaled kernel $\omega^{\epsilon}(y) = \frac{1}{\epsilon} \omega(\tfrac{y}{\epsilon})$ such that it converges to Dirac point mass as $\epsilon$ tends to zero. Formally speaking, $V_{\epsilon}(\rho) \rightarrow v(\rho)$ as $\epsilon \rightarrow 0$; we recover \eqref{eq:local model} as $\epsilon$ tends to zero. But whether the corresponding solutions of \eqref{eq:nonlocal_model} converge to a solution of \eqref{eq:local model}, is the key question that has been studied in the literature; see \cite{bressanEntropyAdmissibilityLimit2021,colomboLocalLimitNonlocal2021,cocliteGeneralResultApproximation2022, huangAsymptoticCompatibilityClass2024,nittiAsymptoticallyCompatibleEntropyconsistent2025}.
-Through out this thesis, we denote the solutions of the local model \eqref{eq:local model} and nonlocal model \eqref{eq:nonlocal_model} by $u$ and $\rho$, respectively, and study the properties of these solutions.
+We denote \eqref{eq:local model} and \eqref{eq:nonlocal_model} by the local and nonlocal models, respectively. The first natural question to ask is whether the nonlocal model \eqref{eq:nonlocal_model} converges to the local model \eqref{eq:local model} as $\epsilon$ tends to zero. To answer the question, we consider the rescaled kernel $\omega^{\epsilon}(y) = \frac{1}{\epsilon} \omega(\tfrac{y}{\epsilon})$ such that it converges to Dirac point mass as $\epsilon$ tends to zero. Formally speaking, $V_{\epsilon}(\rho) \rightarrow v(\rho)$ as $\epsilon \rightarrow 0$; we recover \eqref{eq:local model} as $\epsilon$ tends to zero. But whether the corresponding solutions of \eqref{eq:nonlocal_model} converge to a solution of \eqref{eq:local model}, is the key question that has been studied in the literature; see \cite{bressanEntropyAdmissibilityLimit2021,colomboLocalLimitNonlocal2021,cocliteGeneralResultApproximation2022, huangAsymptoticCompatibilityClass2024,nittiAsymptoticallyCompatibleEntropyconsistent2025}.
+Throughout this thesis, we denote the solutions of the local model \eqref{eq:local model} and nonlocal model \eqref{eq:nonlocal_model} by $u$ and $\rho$, respectively, and study the properties of these solutions.
 
 \subsection{Well-Posedness of the Local Model \eqref{eq:local model}}
-Since solutions of conservation laws may not be differentiable or even continuous we can not expect classical solutions. That is, we may not find a solution that is sufficiently differentiable and satisfy the PDE \eqref{eq:local model} for all points. Hence, we briefly mention the notions of weak solution and entropy solution.
+Since solutions of conservation laws may not be differentiable or even continuous, we cannot expect classical solutions. That is, we may not find a solution that is sufficiently differentiable and satisfies the PDE \eqref{eq:local model} for all points. Hence, we briefly mention the notions of weak solution and entropy solution.
 
 \begin{definition}[Weak solution of \eqref{eq:local model}]
     A function $u \in L^{\infty}(\mathbb{R} \times \mathbb{R_{+}})$ is a weak solution of \eqref{eq:local model} with initial
@@ -66,19 +67,19 @@ where $s(t)= \gamma'(t)$ denotes the speed of a shock wave $\gamma(t)$, and $u_L
             u_{R} & \text{if } x > \gamma(t),
         \end{cases}
     \end{align*}
-    where  $u_L$ and $u_R$ are are continuously differentiable functions. Then $u$ is a weak solution of the local model if and only if\\
+    where  $u_L$ and $u_R$ are continuously differentiable functions. Then $u$ is a weak solution of the local model if and only if\\
     (i) both $u_L$ and $u_R$ solve the local model in the classical sense.\\
     (ii) $s(t)$ satisfy the Rankine--Hugoniot condition \eqref{eq:R_H}.
 \end{theorem}
-The above theorem says that if $u$ contains two states separated by a shock wave that satisfies the Rankine--Hugoniot condition, then $u$ is a weak solution of the local model. However, the Rankine--Hugoniot condition alone does not guarantee uniqueness of $u$. Therefore, we need to impose a condition that guarantees stability and uniqueness of of weak solutions.
+The above theorem says that if $u$ contains two states separated by a shock wave that satisfies the Rankine--Hugoniot condition, then $u$ is a weak solution of the local model. However, the Rankine--Hugoniot condition alone does not guarantee uniqueness of $u$. Therefore, we need to impose a condition that guarantees stability and uniqueness of weak solutions.
 
-The well-posedness (i.e, there exist a unique solution) of the local model \eqref{eq:local model} is obtained through viscous approximation; see \cite[Chapter~2]{holdenFrontTrackingHyperbolic2015}. The technique is to add a viscous term to the conservation law \eqref{eq:local model} in order to turn \eqref{eq:local model} from hyperbolic to parabolic. That is, we study the new parabolic PDE
+The well-posedness (i.e., there exists a unique solution) of the local model \eqref{eq:local model} is obtained through viscous approximation; see \cite[Chapter~2]{holdenFrontTrackingHyperbolic2015}. The technique is to add a viscous term to the conservation law \eqref{eq:local model} in order to turn \eqref{eq:local model} from hyperbolic to parabolic. That is, we study the new parabolic PDE
 \begin{equation}\label{eq:viscous equation}
-    u^{\delta}_{t} + f(u^{\delta})_{x} = \delta u^{\delta}_{xx},
+    u^{\delta}_{t} + f(u^{\delta})_{x} = \delta u^{\delta}_{xx}
 \end{equation}
-where $\delta > 0$. Formally, if we take $\delta \rightarrow 0$ we recover \eqref{eq:local model}. Solutions of \eqref{eq:viscous equation} possess similar properties as solution of heat equation, i.e., we obtain smooth solutions. More over, the solutions $u^{\delta}$ satisfy a useful property such as
+where $\delta > 0$. Formally, if we take $\delta \rightarrow 0$ we recover \eqref{eq:local model}. Solutions of \eqref{eq:viscous equation} possess similar properties as solutions of the heat equation, i.e., we obtain smooth solutions. Moreover, the solutions $u^{\delta}$ satisfy a useful property such as
 \begin{equation}\label{eq:parabolic_property}
-    \eta(u^{\delta})_{t} + q(u^{\delta})_{x} \leq 0,
+    \eta(u^{\delta})_{t} + q(u^{\delta})_{x} \leq 0
 \end{equation}
 where the entropy function $\eta:\mathbb{R}\rightarrow\mathbb{R}$ is any  strictly convex function, and the entropy flux function $q:\mathbb{R}\rightarrow\mathbb{R}$ is defined as
 \[ q(u) := \int_{0}^{u} f'(s)\eta'(s) \, ds.\]
@@ -91,22 +92,22 @@ The above property should be interpreted in the weak sense as usual, therefore t
     \int_0^\infty \int_{\mathbb{R}}
     \bigl(\eta(u(x,t)) \phi_t(x,t) + q(u(x,t)) \phi_x(x,t)\bigr)\, dx\, dt
     + \int_{\mathbb{R}} \eta(u_0(x)) \phi(x,0)\, dx
-    \ge 0,
+    \ge 0
 \end{equation}
 for all test functions $\phi \in C_c^1(\mathbb{R}\times[0,\infty))$ with $\phi \ge 0$.
 
 \begin{definition}[Entropy solution]
-    A function $u \in L^{\infty}(\mathbb{R} \times \mathbb{R_{+}})$ is a an entropy solution of the local model \eqref{eq:local model} provided the following conditions: \\
+    A function $u \in L^{\infty}(\mathbb{R} \times \mathbb{R_{+}})$ is an entropy solution of the local model \eqref{eq:local model} provided the following conditions: \\
     (i) $u$ is a weak solution of the local model \eqref{eq:local model} \\
     (ii) $u$ satisfies the entropy condition \eqref{eq:enropy_condition}
 \end{definition}
-Particular choice for the entropy pairs are $\eta(u)= |u-k|$ with corresponding $q(u)= sign(u-k)(f(u)-f(k))$ for any $k \in \mathbb{R}$. Those pairs are called Kruzkhov entropy pairs. We say that a function satisfies the Kruzkov entropy condition if it satisfies:
+Particular choice for the entropy pairs are $\eta(u)= |u-k|$ with corresponding $q(u)= sign(u-k)(f(u)-f(k))$ for any $k \in \mathbb{R}$. Those pairs are called Kruzkhov entropy pairs. We say that a function satisfies the Kruzkov entropy condition if it satisfies
 \begin{equation}\label{eq: kruz}
-    |u-k|_{t} + (sign(u-k)(f(u-f(k))))_{x} \leq 0
+    |u-k|_{t} + (sign(u-k)(f(u-f(k))))_{x} \leq 0.
 \end{equation}
 The following Lemma helps us to determine whether a given function is an entropy solution of the local model \eqref{eq:local model}.
 \begin{lemma}
-    A function $ u \in L^{\infty}(\mathbb{R} \times \mathbb{R_{+}})$ is an entropy solution of the local model \eqref{eq:local model} if and only if it satisfies the Kruzkov entropy condition.
+    A function $ u \in L^{\infty}(\mathbb{R} \times \mathbb{R_{+}})$ is an entropy solution of the local model \eqref{eq:local model} if and only if it satisfies the Kruzkov entropy condition \eqref{eq: kruz}.
 \end{lemma}
 The solutions $u^{\delta}$ of the viscous equation \eqref{eq:viscous equation} satisfy the maximum principle, so $\| u^{\delta}\Vert_{L^{\infty}(\mathbb{R})} \leq \| u_{0}\Vert_{L^{\infty}(\mathbb{R})}$. Taking the limit $\delta \rightarrow 0$ gives us $L^{\infty}$ bound $\| u \Vert_{L^{\infty}(\mathbb{R})} \leq \| u_{0}\Vert_{L^{\infty}(\mathbb{R})}$. On the other hand, the property \eqref{eq:hyperbolic_property} can be used to obtain ${L^{p}(\mathbb{R})}$ estimate on $u$ such that  $\| u \Vert_{L^{p}(\mathbb{R})} \leq \| u_{0}\Vert_{L^{p}(\mathbb{R})}$.
 
@@ -118,7 +119,7 @@ Let us now summarize the important properties of the entropy solution of the loc
     \begin{itemize}
         \item $L^1$ bound:
               \begin{equation}\label{eq:continuous_L^1_bound}
-                  \|u(\cdot,t)\|_{L^1(\mathbb{R})} \le \|u_0\|_{L^1(\mathbb{R})}..
+                  \|u(\cdot,t)\|_{L^1(\mathbb{R})} \le \|u_0\|_{L^1(\mathbb{R})}.
               \end{equation}
 
         \item $L^\infty$ bound:
@@ -134,7 +135,7 @@ Let us now summarize the important properties of the entropy solution of the loc
               \end{equation}
               where the TV-norm is defined by
               \[
-                  \| g\Vert_{TV([a,b])} = \sup\limits_{\mathcal{P}} \sum_{j=1}^{N-1}|g(x_{j+1})- g(x_j)| \quad \text{ with } \mathcal{P}= \{a= x_1 < x_2 < \cdots < x_N=b \}
+                  \| g\Vert_{TV([a,b])} = \sup\limits_{\mathcal{P}} \sum_{j=1}^{N-1}|g(x_{j+1})- g(x_j)| \quad \text{ with } \mathcal{P}= \{a= x_1 < x_2 < \cdots < x_N=b \}.
               \]
 
         \item Time continuity: if $\|u_0\|_{TV} < \infty$, then
@@ -157,7 +158,7 @@ Let us now summarize the important properties of the entropy solution of the loc
     $u_0$ and $v_0$, respectively, then we have:
     \begin{itemize}
         \item Monotonicity: if $u_0 \leq v_0$ for all $ x \in \mathbb{R}$, then \begin{equation}\label{eq:continuous_monotonicity}
-                  u(x,t) \leq v(x,t) \qquad \text{for all } x \in \mathbb{R}
+                  u(x,t) \leq v(x,t) \qquad \text{for all } x \in \mathbb{R}.
               \end{equation}
     \end{itemize}
 \end{theorem}
@@ -285,11 +286,10 @@ For clarity, we include the following diagram.
     \caption{Diagram of limiting paths between the local and nonlocal models.}
 \end{figure}
 \begin{enumerate}
-    \item Regarding the convergence of $u^{\Delta x}$ to $u$, see \cite[Chatper~4]{Ulrik2015}, where a conservative, consistent and monotone schemes converge to the entropy solution $u$ of the local model \eqref{eq:local model}.
+    \item Regarding the convergence of $u^{\Delta x}$ to $u$, see \cite[Chapter~4]{Ulrik2015}, where conservative, consistent, and monotone schemes converge to the entropy solution $u$ of the local model \eqref{eq:local model}.
     \item The convergence of $\rho^{\epsilon}$ to the entropy solution $u$ of the local model as $\epsilon \rightarrow 0$ has been studied in \cite{bressanEntropyAdmissibilityLimit2021,colomboLocalLimitNonlocal2021,cocliteGeneralResultApproximation2022}. In \cite{bressanEntropyAdmissibilityLimit2021}, the authors consider the nonlocal exponential kernels $\omega^{\epsilon}(y)=\frac{1}{\epsilon}e^{-\frac{y}{\epsilon}}$, and obtained convergence of $\rho^{\epsilon}$ to $u$, under the condition that the initial data $\rho_0$ is uniformly positive. In \cite{colomboLocalLimitNonlocal2021}, they obtained convergence results for a class of nonlocal kernels, but under one additional condition on $\rho_0$ that it satisfies a one-sided Lipschitz condition. To overcome the restrictions on the initial data $\rho_0$, the authors in \cite{cocliteGeneralResultApproximation2022} studied the stability analysis on the convolution term $(\rho*\omega^{\epsilon})$ which has better stability and convergence properties, and proved that the weak solution of the nonlocal model\eqref{eq:nonlocal_model} converges to the entropy solution $u$ of the local model \eqref{eq:local model}.
-    \item Regrading asymptotic compatibility, i.e., the convergence of $\rho^{\epsilon, \Delta x}$ to $u$ as both $\Delta x \rightarrow 0$ and $\epsilon \rightarrow 0$ simultaneously, see the recent studies in \cite{huangAsymptoticCompatibilityClass2024,nittiAsymptoticallyCompatibleEntropyconsistent2025}. We also provide in Chapter~\ref{chap:chapter_4} the stability analysis used in \cite{huangAsymptoticCompatibilityClass2024}.
+    \item Regarding asymptotic compatibility, i.e., the convergence of $\rho^{\epsilon, \Delta x}$ to $u$ as both $\Delta x \rightarrow 0$ and $\epsilon \rightarrow 0$ simultaneously, see the recent studies in \cite{huangAsymptoticCompatibilityClass2024,nittiAsymptoticallyCompatibleEntropyconsistent2025}. We also provide in Chapter~\ref{chap:chapter_4} the stability analysis used in \cite{huangAsymptoticCompatibilityClass2024}.
 \end{enumerate}
-
 
 
 

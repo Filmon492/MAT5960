@@ -241,7 +241,7 @@ We obtain the corresponding quantitative results:
         \end{tabular}
         \caption*{(b) Godunov scheme}
     \end{minipage}
-    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Lax--Friedrichs scheme and the Godunov scheme in solving the local model with the Riemann initial data \eqref{eq:sloving shocks}}
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the Lax--Friedrichs scheme and the Godunov scheme in solving the local model with the Riemann initial data \eqref{eq:sloving shocks}}
     \label{tab:table_2}
 \end{table}
 The observation in Table \ref{tab:table_2} indicates that the Godunov numerical scheme handles solutions with shocks effectively than The Lax--Friedrichs scheme. We also observe that for both schemes the order of convergence is $1$.
@@ -285,11 +285,11 @@ Finally we repeat the above experiments with the smooth initial data \eqref{eq:s
         \caption*{(b) Godunov scheme}
     \end{minipage}
 
-    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Lax--Friedrichs scheme and the Godunov scheme in solving the local model with smooth initial data \eqref{eq:smooth}.}
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the Lax--Friedrichs scheme and the Godunov scheme in solving the local model with smooth initial data \eqref{eq:smooth}.}
     \label{tab:table_3}
 \end{table}
 \subsection*{Summary}
-The experiments above provide evidence that the numerical schemes are asymptotically compatible, in the sense that they converge to the entropy solution of the local model \eqref{eq:local model} as both parameters $\Delta x$ and $\epsilon$ tend to zero simultaneously. Moreover, although the stability analysis in Chapter~\ref{chap:chapter_4} is established under the assumption that the initial data can not contain negative jumps, the numerical experiments indicate that the methods remain robust even for the initial data \eqref{eq:sloving rarefaction}, which contains a negative jump.
+The experiments above provide evidence that the numerical schemes are asymptotically compatible, in the sense that they converge to the entropy solution of the local model \eqref{eq:local model} as both parameters $\Delta x$ and $\epsilon$ tend to zero simultaneously. Moreover, although the stability analysis in Chapter~\ref{chap:chapter_4} is established under the assumption that the initial data cannot contain negative jumps, the numerical experiments indicate that the methods remain robust even for the initial data \eqref{eq:sloving rarefaction}, which contains a negative jump.
 
 \subsection{Numerical Convergence to the Nonlocal Model}
 
@@ -340,7 +340,7 @@ For fixed $\epsilon$, through numerical experiments we aim to deduce $ \| e \Ver
         \caption*{(b) Godunov scheme}
     \end{minipage}
 
-    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Lax--Friedrichs scheme and the Godunov scheme in solving the nonlocal model with the Riemann initial data \eqref{eq:sloving rarefaction}.}
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the Lax--Friedrichs scheme and the Godunov scheme in solving the nonlocal model with the Riemann initial data \eqref{eq:sloving rarefaction}.}
     \label{tab:table_4}
 \end{table}
 
@@ -382,7 +382,7 @@ For fixed $\epsilon$, through numerical experiments we aim to deduce $ \| e \Ver
         \caption*{(b) Godunov scheme}
     \end{minipage}
 
-    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Lax--Friedrichs scheme and the Godunov scheme in solving the nonlocal model with the Riemann initial data \eqref{eq:sloving shocks}}
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the Lax--Friedrichs scheme and the Godunov scheme in solving the nonlocal model with the Riemann initial data \eqref{eq:sloving shocks}}
     \label{tab:table_5}
 \end{table}
 
@@ -425,9 +425,8 @@ For fixed $\epsilon$, through numerical experiments we aim to deduce $ \| e \Ver
         \caption*{(b) Godunov scheme}
     \end{minipage}
 
-    \caption{$L^{1}$-errors and observed order of convergence obtained using the the Lax--Friedrichs scheme and the Godunov scheme in solving the nonlocal model with the smooth initial data \eqref{eq:smooth}.}
+    \caption{$L^{1}$-errors and observed order of convergence obtained using the Lax--Friedrichs scheme and the Godunov scheme in solving the nonlocal model with the smooth initial data \eqref{eq:smooth}.}
     \label{tab:table_6}
 \end{table}
 \subsection*{Summary}
-The quantitative results above indicate that for fixed $\epsilon$, $\rho^{\epsilon, \Delta x} \rightarrow \rho^{\epsilon} $ as $\Delta x \rightarrow 0$. In addition, the Godunov scheme is more efficient than the Lax--Friedrichs scheme. In addition, based on our numerical experiments, the order of the developed numerical schemes is at most $1$. So, in the next chapter we will develop a second-oder numerical scheme.
-
+The quantitative results above indicate that for fixed $\epsilon$, $\rho^{\epsilon, \Delta x} \rightarrow \rho^{\epsilon} $ as $\Delta x \rightarrow 0$. In addition, the Godunov scheme is more efficient than the Lax--Friedrichs scheme. Based on our numerical experiments, the order of the developed numerical schemes is at most $1$. Therefore, in the next chapter we will develop a second-order numerical scheme.

@@ -464,7 +464,7 @@ Now we prove the Lemma by induction
             (1- q_j^n)+ w_0\rho_j^n \leq 2 - (2-w_0)r_j^n
         \end{split}
     \end{equation}
-    Huang and Du, see \cite[p.~13]{huangAsymptoticCompatibilityClass2024}, claimed that this follows from Assumptions~\ref{assm:assm_1}--\ref{assm:assm_4} and the conditions in Lemma~\ref{lem:lemma_1}. But this does not seem as obvious as they claim. Because from the assumptions we can estimate the right hand side of \eqref{eq:C0} as
+    Huang and Du~\cite[p.~13]{huangAsymptoticCompatibilityClass2024}, claimed that this follows from Assumptions~\ref{assm:assm_1}--\ref{assm:assm_4} and the conditions in Lemma~\ref{lem:lemma_1}. But this does not seem as obvious as they claim. Because from the assumptions we can estimate the right hand side of \eqref{eq:C0} as
     \begin{align*}
         (1- q_j^n)+ w_0\rho_j^n & \leq (1- q_j^n)+ \rho_j^n                                                                   \\
                                 & \leq (1-q_j^n) + \rho_{\max} \qquad \text{By maximum principle Theorem~\ref{the:theorem_1}} \\
@@ -517,7 +517,7 @@ Now we prove the Lemma by induction
 \subsection{Monotonicity of the update function $\mathcal{H}$}
 Having Lemma~\ref{lem:lemma_1} at hand, we can finally deduce that the update function $\mathcal{H}$ given by \eqref{eq:mono_H} is nondecreasing in each of its arguments.
 \begin{proposition}\label{prop:mono_of_H}
-    Under conditions of the Lemma~\ref{lem:lemma_1}, the update function $\mathcal{H}$ given by \eqref{eq:mono_H} is a monotone scheme.
+    Under conditions of the Lemma~\ref{lem:lemma_1}, the update function $\mathcal{H}$ given by \eqref{eq:mono_H} is monotone.
 \end{proposition}
 \begin{proof}
     In Subsection~\ref{subsec:mono}, we have shown that $\mathcal{H}$ is nondecreasing with respect to $\rho_{j-1}, \rho_{j}$ and $\rho_{j+m}$. Now consider $k= 1,2,\dots,m-1$. We have
@@ -544,7 +544,7 @@ Having Lemma~\ref{lem:lemma_1} at hand, we can finally deduce that the update fu
     Therefore, $\mathcal{H}$ is nondecreasing with respect to all its arguments, which means  $\mathcal{H}$ is monotone.
 \end{proof}
 \subsection*{Summary}
-The maximum principle, Theorem~\ref{the:theorem_1}, gives $\mathbf{L^{\infty}}$ bounds. The total variation estimates are obtained from the monotonicity of $\mathcal{H}$. The Oleinike's entropy condition can be obtained from a careful analysis on the one sided Lipschitz condition, see \cite[LEMMA~4.3]{huangAsymptoticCompatibilityClass2024}. Thus, the numerical solution computed by \eqref{eq:mono_H} is uniformly bounded in $\mathbf{BV}_{loc}(\mathbb{R} \times \mathbb{R}_{+})$. So, Helly's theorem gives precompactness in $\mathbf{L}_{loc}^{1}$. Then, there exist a convergent subsequence in $\mathbf{L}_{loc}^{1}(\mathbb{R} \times \mathbb{R}_{+})$ to a limit function $\rho^{*}$ by Ascoli's theorem. Finally we can apply the Lax--Wendroff theorem to prove that the limit function $\rho^{*}$ is the entropy solution of the local model, then by uniqueness of the entropy solution the whole sequence converge to the same limit function. That is, when we have
+The maximum principle, Theorem~\ref{the:theorem_1}, gives $\mathbf{L^{\infty}}$ bounds. The total variation estimates are obtained from the monotonicity of $\mathcal{H}$. The Oleinike's entropy condition can be obtained from a careful analysis on the one sided Lipschitz condition, see \cite[LEMMA~4.3]{huangAsymptoticCompatibilityClass2024}. Thus, the numerical solutions computed by \eqref{eq:mono_H} is uniformly bounded in $\mathbf{BV}_{loc}(\mathbb{R} \times \mathbb{R}_{+})$. So, Helly's theorem gives precompactness in $\mathbf{L}_{loc}^{1}$. Then, there exist a convergent subsequence in $\mathbf{L}_{loc}^{1}(\mathbb{R} \times \mathbb{R}_{+})$ to a limit function $\rho^{*}$ by Ascoli's theorem. Finally we can apply the Lax--Wendroff theorem to prove that the limit function $\rho^{*}$ is the entropy solution of the local model, then by uniqueness of the entropy solution the whole sequence converge to the same limit function. That is, when we have
 \[
     0 < \epsilon \leq \frac{c\rho_{\min}}{2L\omega(0)},
 \]
