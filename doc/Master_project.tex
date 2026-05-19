@@ -1,23 +1,41 @@
-\documentclass{article}
-\usepackage{graphicx} % Required for inserting images
+% \documentclass{article}
+\documentclass[UKenglish]{uiomasterthesis}
 \usepackage[utf8]{inputenc}
+\usepackage[T1]{url}\urlstyle{sf}
+\usepackage{babel, graphicx, textcomp, uiomasterfp, varioref}
+\usepackage[backend=bibtex,style=numeric-comp]{biblatex}
+\usepackage[hidelinks, hypertexnames=false]{hyperref}
+
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsfonts}
+\usepackage{amsthm}
 \usepackage{minted}
-\usepackage{textcomp}
+\usepackage{csquotes}
 \usepackage{mathtools}
 \usepackage{float}
 \usepackage{mathrsfs}
-\usepackage[backend=bibtex]{biblatex}
 \usepackage{tikz}
-\usepackage{url}
 \usepackage{xcolor}
 \usepackage{titlesec}
 \usepackage{sectsty}
 \usepackage{microtype}
-\usepackage{hyperref}
-\usepackage{xcolor}
+\usepackage{xfrac}
+\usepackage{listings}
+\usepackage{geometry} % Adjust margins if necessary
+\geometry{a4paper, margin=1in}
+
+\usepackage{booktabs} % For better looking tables (\toprule, \midrule, \bottomrule)
+\usepackage{subcaption} % Required for side-by-side sub-tables
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible
+}
+
 \hypersetup{ % this is just my personal choice, feel free to change things
     colorlinks,
     linkcolor={red!50!black},
@@ -29,11 +47,22 @@
 %\titleformat{\section}[block]{\color{blue}\Large\bfseries\filcenter}{}{1em}{}
 %\titleformat{\subsection}[hang]{\bfseries}{}{1em}{}
 %\setcounter{secnumdepth}{0}
-\subsectionfont{\centering}
+% \subsectionfont{\centering}
 
 \addbibresource{references.bib}
 
-\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\theoremstyle{definition}
+\newtheorem{assumption}[theorem]{Assumption}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
 
 \usetikzlibrary{automata,arrows,positioning,calc}
 \title{Numerical methods for nonlocal conservation laws}
@@ -42,19 +71,48 @@
 
 
 \begin{document}
+\uiomasterfp[dept={Department of Mathematics},  %% ... or your department
+    program={Mathematics for Applications},                        %% ... or your study program
+    supervisor={Ulrik Skre Fjordholm},                    %% ... or blank
+    % or supervisors={A Name\and B Name},     %% if more than one
+    long]                                     %% ... or short
 
-\maketitle
-\tableofcontents
+\frontmatter{}
+\begin{abstract}
+    In this thesis we study finite volume schemes for a nonlocal traffic flow model and their relation to the corresponding local traffic flow model. We design first-order Lax--Friedrichs-type and Godunov-type schemes, discuss their stability properties, and investigate their convergence numerically. The experiments indicate that normalized quadrature weights are important for consistency in the nonlocal-to-local limit, and that the Godunov-type scheme gives smaller \(L^1\) errors than the Lax--Friedrichs-type scheme. We also formulate a second-order Godunov-type scheme based on piecewise linear reconstruction and SSP Runge--Kutta time stepping, and compare its numerical performance with the first-order scheme.
+\end{abstract}
 
-\section*{Preface}
+%\begin{xabstract}[Sammendrag]               %% ... or Abstract or ...
+%Here comes the abstract in a different language.
+%\end{xabstract}
+
+\tableofcontents{}                          %%
+\listoffigures{}                            %% (omit if none)
+\listoftables{}                             %% (omit if none)
+
+\begin{preface}
+    This thesis is intended for readers with a solid foundation in real analysis and numerical methods for partial differential equations. All numerical methods developed in this thesis have been implemented in Python using object-oriented programming. The code is available in the folder \texttt{src} at: https://github.com/Filmon492/MAT5960
+
+    \textbf{Acknowledgments}. Thanks to the University of Oslo. The main acknowledgment goes to my supervisor, Professor Ulrik Skre Fjordholm. Thank you to my fellow students, in particular Simon Lederhilger and August Femtehjell, for all the support they provided me throughout this thesis. Special thanks to my family, who believed in me. I would also like to acknowledge the support of my friends: Jonas Beyan, Samsom Amaniel, Beletse Sbhatu, and Filmon Mehari.
+
+\end{preface}
+
+\mainmatter{}
+
+%\part{Preface}
 \input{1_introduction/introduction.tex}
-
 \input{2_preliminaries/preliminary.tex}
 
 \input{3_numerical/numerical_methods.tex}
 
-\section{Numerical experiments}
-\section{Convergence of the numerical method to entropy solution}
+\input{3_numerical/AC_convergence.tex}
 
+\input{4_numerical_first_order/numerical_exp_first_order.tex}
+
+\input{5_semi_discrete_formulation/semi_discrete.tex}
+
+%\input{6_draft_ideas_on_AC/draft_ideas_on_AC.tex}
+
+\backmatter{}
 \printbibliography
 \end{document}
