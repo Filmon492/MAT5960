@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/latex,visualstudiocode,python,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=latex,visualstudiocode,python,macos
 
+# Local files
+FilmonCV_CS/
+
 ### LaTeX ###
 ## Core latex/pdflatex auxiliary files:
 compile/
