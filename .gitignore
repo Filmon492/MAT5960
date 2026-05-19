@@ -4,6 +4,20 @@
 # Local files
 FilmonCV_CS/
 
+# Locally generated thesis plots
+Conver_2l.pdf
+doc/Conver_1.pdf
+doc/Conver_1_dis.pdf
+doc/Conver_2l.pdf
+doc/Conver_local.pdf
+doc/discon.pdf
+doc/exp_1a.pdf
+doc/exp_1b.pdf
+doc/exp_1c.pdf
+doc/rarefaction.pdf
+doc/s.pdf
+doc/smooth.pdf
+
 ### LaTeX ###
 ## Core latex/pdflatex auxiliary files:
 compile/
